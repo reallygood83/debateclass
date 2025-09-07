@@ -1,0 +1,1759 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎯 AI 토론 시나리오 생성 지원 도구</title>
+    <style>
+        /* ===== 기본 설정 ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #3b82f6;
+            --primary-hover: #2563eb;
+            --secondary-color: #64748b;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-color: #1f2937;
+            --border-color: #e2e8f0;
+            --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            /* 목적별 색상 */
+            --critical-color: #dc2626;
+            --communication-color: #059669;
+            --creative-color: #7c3aed;
+            --democratic-color: #2563eb;
+            --perspective-color: #ea580c;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0e7ff 100%);
+            color: var(--text-color);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* ===== 헤더 ===== */
+        .header {
+            text-align: center;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, var(--primary-color), #3b82f6);
+            color: white;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        /* ===== 컨테이너 ===== */
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* ===== 카드 ===== */
+        .card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+        }
+
+        .card h2 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card.guide {
+            background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+            border: 2px solid #0ea5e9;
+        }
+
+        /* ===== 입력 필드 ===== */
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .input-group input, .input-group select, .input-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .input-group input:focus, .input-group select:focus, .input-group textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        /* ===== 체크박스 그룹 ===== */
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: auto;
+        }
+
+        /* ===== 버튼 ===== */
+        .btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn:hover {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-success {
+            background: var(--success-color);
+        }
+
+        .btn-warning {
+            background: var(--warning-color);
+        }
+
+        .btn-danger {
+            background: var(--danger-color);
+        }
+
+        .btn-secondary {
+            background: var(--secondary-color);
+        }
+
+        .btn-full {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        /* ===== 숨김 처리 ===== */
+        .hidden {
+            display: none !important;
+        }
+
+        /* ===== 상태 메시지 ===== */
+        .status-message {
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-weight: 500;
+        }
+
+        .status-message.success {
+            background: #dcfce7;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+
+        .status-message.error {
+            background: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+        }
+
+        .status-message.info {
+            background: #eff6ff;
+            color: #2563eb;
+            border: 1px solid #dbeafe;
+        }
+
+        /* ===== 주제 선택 ===== */
+        .topic-option {
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .topic-option:hover {
+            border-color: var(--primary-color);
+            box-shadow: var(--shadow);
+            transform: translateY(-2px);
+        }
+
+        .topic-option.selected {
+            border-color: var(--primary-color);
+            background: linear-gradient(135deg, #eff6ff, #dbeafe);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .topic-option .select-indicator {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border-color);
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .topic-option.selected .select-indicator {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .topic-option.selected .select-indicator::after {
+            content: '✓';
+            color: white;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .topic-option h3 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            padding-right: 40px;
+        }
+
+        .topic-description {
+            color: var(--secondary-color);
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+
+        .pro-con-preview {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .pro-preview, .con-preview {
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        .pro-preview {
+            background: #f0f9ff;
+            border-left: 4px solid var(--success-color);
+        }
+
+        .con-preview {
+            background: #fef2f2;
+            border-left: 4px solid var(--danger-color);
+        }
+
+        .pro-label, .con-label {
+            font-weight: 600;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        /* ===== 시나리오 결과 ===== */
+        .scenario-section {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border-color);
+        }
+
+        .scenario-section h2 {
+            color: var(--primary-color);
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .scenario-section h3 {
+            color: var(--text-color);
+            font-size: 1.3rem;
+            margin: 20px 0 12px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .scenario-section .icon {
+            font-size: 1.2em;
+        }
+
+        .scenario-content {
+            line-height: 1.7;
+            color: var(--text-color);
+        }
+
+        .scenario-content p {
+            margin-bottom: 15px;
+        }
+
+        .scenario-content ul {
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+
+        .scenario-content li {
+            margin-bottom: 8px;
+        }
+
+        /* ===== 메타데이터 그리드 ===== */
+        .metadata-section {
+            background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+        }
+
+        .metadata-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .metadata-item {
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .metadata-item strong {
+            color: var(--primary-color);
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        /* ===== 찬반 논점 ===== */
+        .pros-cons-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .pros-box, .cons-box {
+            padding: 20px;
+            border-radius: 12px;
+            border: 2px solid;
+        }
+
+        .pros-box {
+            background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+            border-color: var(--success-color);
+        }
+
+        .cons-box {
+            background: linear-gradient(135deg, #fef2f2, #fee2e2);
+            border-color: var(--danger-color);
+        }
+
+        .pros-box h4, .cons-box h4 {
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .pros-box h4 {
+            color: var(--success-color);
+        }
+
+        .cons-box h4 {
+            color: var(--danger-color);
+        }
+
+        /* ===== 핵심 질문들 ===== */
+        .key-questions-list {
+            list-style: none;
+        }
+
+        .key-questions-list .question-item {
+            background: linear-gradient(135deg, #fafafa, #f5f5f5);
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary-color);
+            font-weight: 500;
+        }
+
+        .key-questions-list .question-item:before {
+            content: '❓ ';
+            color: var(--primary-color);
+        }
+
+        /* ===== 기대 학습 성과 ===== */
+        .outcomes-list {
+            list-style: none;
+        }
+
+        .outcomes-list li {
+            background: linear-gradient(135deg, #eff6ff, #dbeafe);
+            padding: 12px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .outcomes-list li:before {
+            content: '🎯 ';
+            color: var(--primary-color);
+        }
+
+        /* ===== 준비물 (토글) ===== */
+        .materials-toggle {
+            cursor: pointer;
+            user-select: none;
+            transition: color 0.3s ease;
+        }
+
+        .materials-toggle:hover {
+            color: var(--primary-hover);
+        }
+
+        .toggle-indicator {
+            transition: transform 0.3s ease;
+        }
+
+        .toggle-indicator.rotated {
+            transform: rotate(180deg);
+        }
+
+        .materials-content {
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .materials-list li {
+            background: #f8fafc;
+            padding: 10px;
+            margin-bottom: 5px;
+            border-radius: 6px;
+            border-left: 3px solid var(--warning-color);
+        }
+
+        .materials-list li:before {
+            content: '📦 ';
+            color: var(--warning-color);
+        }
+
+        /* ===== 교사 지도 팁 ===== */
+        .teacher-tips-content {
+            background: linear-gradient(135deg, #fef9e7, #fef3c7);
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid var(--warning-color);
+        }
+
+        /* ===== 목적별 색상 ===== */
+        .purpose-critical {
+            border-left-color: var(--critical-color) !important;
+        }
+
+        .purpose-communication {
+            border-left-color: var(--communication-color) !important;
+        }
+
+        .purpose-creative {
+            border-left-color: var(--creative-color) !important;
+        }
+
+        .purpose-democratic {
+            border-left-color: var(--democratic-color) !important;
+        }
+
+        .purpose-perspective {
+            border-left-color: var(--perspective-color) !important;
+        }
+
+        .purpose-tag {
+            font-size: 0.8rem;
+            padding: 4px 8px;
+            border-radius: 12px;
+            background: var(--primary-color);
+            color: white;
+            margin-left: 10px;
+        }
+
+        /* ===== 재추천 섹션 ===== */
+        .re-recommendation {
+            background: linear-gradient(135deg, #fefce8, #fef3c7);
+            border: 2px solid var(--warning-color);
+            margin-top: 20px;
+        }
+
+        .feedback-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .feedback-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px;
+            background: white;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+
+        /* ===== AI 진행률 팝업 ===== */
+        .ai-progress-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .ai-progress-modal {
+            background: white;
+            border-radius: 20px;
+            padding: 40px 30px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: aiProgressSlideIn 0.5s ease;
+        }
+
+        .ai-progress-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            animation: bounce 2s infinite;
+        }
+
+        .ai-progress-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .ai-progress-subtitle {
+            color: var(--secondary-color);
+            margin-bottom: 30px;
+            font-size: 0.95rem;
+        }
+
+        .ai-progress-bar-container {
+            background: #f1f5f9;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+
+        .ai-progress-bar {
+            background: linear-gradient(90deg, var(--primary-color), var(--success-color));
+            height: 100%;
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        .ai-progress-steps {
+            text-align: left;
+        }
+
+        .ai-progress-step {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 0;
+            color: var(--secondary-color);
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        .ai-progress-step.active {
+            color: var(--primary-color);
+            font-weight: 600;
+            transform: translateX(5px);
+        }
+
+        .ai-progress-step.completed {
+            color: var(--success-color);
+        }
+
+        .ai-progress-step-icon {
+            font-size: 1.2em;
+            width: 20px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes aiProgressSlideIn {
+            from { 
+                opacity: 0;
+                transform: translateY(-20px) scale(0.9);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+
+        /* ===== 반응형 디자인 ===== */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .container {
+                padding: 15px;
+            }
+
+            .card {
+                padding: 20px;
+                margin-bottom: 20px;
+            }
+
+            .pros-cons-container {
+                grid-template-columns: 1fr;
+            }
+
+            .pro-con-preview {
+                grid-template-columns: 1fr;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+
+            .ai-progress-modal {
+                margin: 20px;
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 헤더 -->
+    <div class="header">
+        <h1>🎯 AI 토론 시나리오 생성 지원 도구</h1>
+        <p>초등 토론 교육을 위한 맞춤형 시나리오를 AI가 생성해드립니다</p>
+    </div>
+
+    <div class="container">
+        <!-- 사용 가이드 -->
+        <div class="card guide">
+            <h2>📋 사용 방법</h2>
+            <p><strong>1단계:</strong> 토론 주제와 관련된 키워드를 입력하세요 (예: 환경보호, 인공지능, 스마트폰 등)</p>
+            <p><strong>2단계:</strong> AI가 추천한 3개의 주제 중 원하는 것을 선택하세요</p>
+            <p><strong>3단계:</strong> 학년, 교과, 토론 목적을 설정하고 시나리오를 생성하세요</p>
+            <p><strong>💡 팁:</strong> 구체적인 키워드일수록 더 정확한 주제 추천을 받을 수 있습니다!</p>
+        </div>
+
+        <!-- 상태 메시지 -->
+        <div id="status-message" class="status-message hidden"></div>
+
+        <!-- 1단계: 키워드 입력 및 주제 추천 -->
+        <div class="card" id="topic-input">
+            <h2>🔍 1단계: 토론 주제 키워드 입력</h2>
+            
+            <div class="input-group">
+                <label for="keyword">토론 주제 키워드</label>
+                <input type="text" id="keyword" placeholder="예: 환경보호, 인공지능, 스마트폰, 독서 등">
+            </div>
+
+            <div class="input-group">
+                <label for="topic-purpose">토론 목적 (선택사항)</label>
+                <select id="topic-purpose">
+                    <option value="">목적을 선택해주세요</option>
+                    <option value="비판적 사고력 기르기">비판적 사고력 기르기</option>
+                    <option value="의사소통 능력 향상">의사소통 능력 향상</option>
+                    <option value="다양한 관점 이해하기">다양한 관점 이해하기</option>
+                    <option value="민주적 의사결정 능력">민주적 의사결정 능력</option>
+                    <option value="창의적 문제해결">창의적 문제해결</option>
+                </select>
+            </div>
+
+            <button class="btn btn-full" id="recommend-btn" onclick="getTopicRecommendations()">
+                🤖 AI 주제 추천 받기
+            </button>
+        </div>
+
+        <!-- 2단계: 주제 선택 -->
+        <div class="card hidden" id="topic-selection">
+            <h2>🎯 2단계: 토론 주제 선택</h2>
+            <p>AI가 추천한 주제 중 하나를 선택해주세요:</p>
+            <div id="topic-list"></div>
+            
+            <!-- 재추천 섹션 -->
+            <div class="card re-recommendation hidden" id="re-recommendation-section">
+                <h2>🔄 다른 주제가 필요하신가요?</h2>
+                <p>아래 피드백을 선택하시면 더 적합한 주제를 추천해드립니다:</p>
+                
+                <div class="feedback-options">
+                    <div class="feedback-option">
+                        <input type="checkbox" name="feedback" value="더 쉬운 주제" id="feedback-easy">
+                        <label for="feedback-easy">더 쉬운 주제</label>
+                    </div>
+                    <div class="feedback-option">
+                        <input type="checkbox" name="feedback" value="더 어려운 주제" id="feedback-hard">
+                        <label for="feedback-hard">더 어려운 주제</label>
+                    </div>
+                    <div class="feedback-option">
+                        <input type="checkbox" name="feedback" value="더 구체적인 주제" id="feedback-specific">
+                        <label for="feedback-specific">더 구체적인 주제</label>
+                    </div>
+                    <div class="feedback-option">
+                        <input type="checkbox" name="feedback" value="더 일반적인 주제" id="feedback-general">
+                        <label for="feedback-general">더 일반적인 주제</label>
+                    </div>
+                    <div class="feedback-option">
+                        <input type="checkbox" name="feedback" value="학교생활 관련" id="feedback-school">
+                        <label for="feedback-school">학교생활 관련</label>
+                    </div>
+                    <div class="feedback-option">
+                        <input type="checkbox" name="feedback" value="사회문제 관련" id="feedback-social">
+                        <label for="feedback-social">사회문제 관련</label>
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <label for="manual-feedback">추가 요청사항 (선택사항)</label>
+                    <textarea id="manual-feedback" rows="2" placeholder="예: 더 흥미로운 주제, 체험할 수 있는 주제 등"></textarea>
+                </div>
+                
+                <button class="btn btn-warning btn-full" id="re-recommend-btn" onclick="reRecommendTopics()">
+                    🔄 새로운 주제 추천받기
+                </button>
+            </div>
+        </div>
+
+        <!-- 3단계: 시나리오 생성 설정 -->
+        <div class="card hidden" id="scenario-generation">
+            <h2>⚙️ 3단계: 시나리오 생성 설정</h2>
+            
+            <div class="input-group">
+                <label for="grade">대상 학년</label>
+                <select id="grade">
+                    <option value="">학년을 선택해주세요</option>
+                    <option value="1-2학년">1-2학년</option>
+                    <option value="3-4학년">3-4학년</option>
+                    <option value="5-6학년">5-6학년</option>
+                    <option value="전학년">전학년</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label>관련 교과 (복수선택 가능)</label>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="checkbox" name="subject" value="국어" id="korean">
+                        <label for="korean">국어</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" name="subject" value="도덕" id="ethics">
+                        <label for="ethics">도덕</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" name="subject" value="사회" id="social">
+                        <label for="social">사회</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" name="subject" value="과학" id="science">
+                        <label for="science">과학</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" name="subject" value="실과" id="practical">
+                        <label for="practical">실과</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" name="subject" value="창체" id="creative">
+                        <label for="creative">창체</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label for="time">예상 수업시간</label>
+                <select id="time">
+                    <option value="">시간을 선택해주세요</option>
+                    <option value="40분(1차시)">40분(1차시)</option>
+                    <option value="80분(2차시)">80분(2차시)</option>
+                    <option value="120분(3차시)">120분(3차시)</option>
+                </select>
+            </div>
+
+            <button class="btn btn-success btn-full" id="generate-btn" onclick="generateScenario()">
+                ✨ 토론 시나리오 생성하기
+            </button>
+        </div>
+
+        <!-- 4단계: 결과 표시 -->
+        <div class="card hidden" id="result-section">
+            <h2>📋 생성된 토론 시나리오</h2>
+            <div id="scenario-result"></div>
+            
+            <div class="action-buttons">
+                <button class="btn btn-success" onclick="saveScenario()">
+                    💾 시나리오 저장
+                </button>
+                <button class="btn btn-secondary" onclick="printScenario()">
+                    🖨️ 인쇄하기
+                </button>
+                <button class="btn btn-warning" onclick="copyScenario()">
+                    📋 복사하기
+                </button>
+                <button class="btn btn-primary" onclick="location.reload()">
+                    🔄 새 시나리오 만들기
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===== AI 토론 시나리오 생성기 메인 로직 =====
+
+        // 전역 변수
+        let selectedTopic = null;
+        let currentTopics = [];
+
+        // 페이지 초기화
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 AI 토론 시나리오 생성기 초기화 완료');
+            
+            // 키워드 입력 필드에 포커스
+            document.getElementById('keyword').focus();
+            
+            // Enter 키로 다음 단계 진행
+            document.getElementById('keyword').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    getTopicRecommendations();
+                }
+            });
+            
+            showStatus('🎯 키워드를 입력하여 AI 토론 주제 추천을 받아보세요!', 'info');
+        });
+
+        // ===== 상태 메시지 표시 =====
+        function showStatus(message, type = 'info') {
+            const statusEl = document.getElementById('status-message');
+            if (!statusEl) {
+                console.warn('status-message element not found');
+                return;
+            }
+            statusEl.textContent = message;
+            statusEl.className = `status-message ${type}`;
+            statusEl.classList.remove('hidden');
+            
+            if (type === 'success' || type === 'error') {
+                setTimeout(() => {
+                    statusEl.classList.add('hidden');
+                }, 5000);
+            }
+        }
+
+        // ===== 섹션 표시 =====
+        function showSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            if (section) {
+                section.classList.remove('hidden');
+                section.style.display = 'block';
+            }
+        }
+
+        // ===== OpenAI API 호출 (데모용 - 실제로는 안전한 백엔드 서버에서 처리해야 함) =====
+        async function callOpenAI(prompt) {
+            // 실제 운영환경에서는 보안을 위해 백엔드 API를 통해 호출해야 합니다
+            showStatus('⚠️ 데모 모드: 실제 AI 연동이 필요합니다', 'warning');
+            
+            // 임시 응답 생성 (실제 구현에서는 실제 AI API 호출)
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    if (prompt.includes('주제 추천')) {
+                        resolve(`[
+                            {
+                                "title": "초등학생의 스마트폰 사용을 금지해야 한다",
+                                "description": "어린이 스마트폰 사용의 장단점과 적절한 규제에 대한 토론으로, 디지털 시대의 교육 방향을 모색할 수 있습니다.",
+                                "proView": "집중력과 사회성 발달을 위해 제한이 필요합니다",
+                                "conView": "정보 접근과 소통을 위해 적절한 사용이 필요합니다"
+                            },
+                            {
+                                "title": "수업 시간에 스마트폰을 교육 도구로 활용해야 한다",
+                                "description": "디지털 기기의 교육적 활용 가능성에 대한 토론으로, 전통적 교육과 디지털 교육의 균형을 찾을 수 있습니다.",
+                                "proView": "흥미롭고 효과적인 학습이 가능합니다",
+                                "conView": "수업 집중도가 떨어지고 의존성이 생깁니다"
+                            },
+                            {
+                                "title": "스마트폰 사용 시간을 하루 1시간으로 제한해야 한다",
+                                "description": "건전한 디지털 습관 형성을 위한 시간 제한의 필요성에 대한 토론으로, 자기조절 능력을 기를 수 있습니다.",
+                                "proView": "건강한 생활습관과 실제 체험을 위해 필요합니다",
+                                "conView": "개인의 상황에 따라 유연하게 조절되어야 합니다"
+                            }
+                        ]`);
+                    } else {
+                        resolve(`{
+                            "title": "${selectedTopic}",
+                            "topic": "${selectedTopic}",
+                            "keywords": ["토론", "교육", "초등학생"],
+                            "grade": "5-6학년",
+                            "subject": ["도덕", "사회"],
+                            "background": "이 주제는 현대 사회에서 중요한 이슈로, 학생들이 다양한 관점에서 생각해볼 수 있는 주제입니다.",
+                            "proArguments": ["찬성 논점 1", "찬성 논점 2", "찬성 논점 3"],
+                            "conArguments": ["반대 논점 1", "반대 논점 2", "반대 논점 3"],
+                            "teacherTips": "학생들이 서로의 의견을 존중하며 토론할 수 있도록 분위기를 조성해주세요.",
+                            "keyQuestions": ["질문 1", "질문 2", "질문 3", "질문 4", "질문 5", "질문 6", "질문 7", "질문 8"],
+                            "expectedOutcomes": ["학습성과 1", "학습성과 2", "학습성과 3", "학습성과 4"],
+                            "materials": ["준비물 1", "준비물 2", "준비물 3"]
+                        }`);
+                    }
+                }, 3000);
+            });
+        }
+
+        // ===== 1단계: 토론 주제 추천 =====
+        async function getTopicRecommendations() {
+            const keyword = document.getElementById('keyword').value.trim();
+            const selectedPurpose = document.getElementById('topic-purpose').value.trim();
+            
+            if (!keyword) {
+                showStatus('키워드를 입력해주세요.', 'error');
+                return;
+            }
+
+            const recommendBtn = document.getElementById('recommend-btn');
+            recommendBtn.disabled = true;
+            showAIProgress('topic');
+
+            try {
+                const prompt = `키워드: "${keyword}", 목적: "${selectedPurpose}" - 초등학생을 위한 토론 주제 3개 추천`;
+                const response = await callOpenAI(prompt + ' 주제 추천');
+                
+                const topics = parseTopicResponse(response, keyword);
+                displayTopics(topics);
+                hideAIProgress();
+                recommendBtn.disabled = false;
+                showStatus('AI가 토론 주제 3개를 추천했습니다!', 'success');
+                
+            } catch (error) {
+                console.error('주제 추천 오류:', error);
+                hideAIProgress();
+                recommendBtn.disabled = false;
+                showStatus('주제 추천 중 오류가 발생했습니다. 다시 시도해주세요.', 'error');
+            }
+        }
+
+        // ===== JSON 응답 파싱 =====
+        function parseTopicResponse(response, keyword) {
+            try {
+                let jsonStr = response.trim();
+                
+                if (jsonStr.includes('```')) {
+                    const match = jsonStr.match(/```(?:json)?\s*(\[[\s\S]*?\])\s*```/);
+                    if (match) {
+                        jsonStr = match[1];
+                    }
+                }
+                
+                const topics = JSON.parse(jsonStr);
+                
+                if (Array.isArray(topics) && topics.length === 3) {
+                    return topics;
+                } else {
+                    throw new Error('잘못된 JSON 형식');
+                }
+            } catch (error) {
+                console.error('JSON 파싱 실패:', error);
+                // 기본 주제 반환
+                return [
+                    { 
+                        title: `${keyword}에 대한 우리 학교의 새로운 규칙을 만들어야 한다`, 
+                        description: `${keyword}와 관련된 학교 규칙 제정의 필요성에 대한 토론입니다.`,
+                        proView: '명확한 규칙이 있어야 모두가 편안합니다',
+                        conView: '너무 많은 규칙은 자유를 제한합니다'
+                    },
+                    { 
+                        title: `${keyword} 교육을 의무화해야 한다`, 
+                        description: `${keyword} 관련 교육의 필요성과 의무화에 대한 토론입니다.`,
+                        proView: '모든 학생이 균등하게 배울 기회를 가져야 합니다',
+                        conView: '개인의 관심과 선택을 존중해야 합니다'
+                    },
+                    { 
+                        title: `${keyword}보다 다른 것이 더 중요하다`, 
+                        description: `${keyword}의 우선순위와 중요도에 대한 토론입니다.`,
+                        proView: '다양한 가치를 균형있게 고려해야 합니다',
+                        conView: `${keyword}가 현재 가장 시급한 문제입니다`
+                    }
+                ];
+            }
+        }
+
+        // ===== 주제 추천 표시 =====
+        function displayTopics(topics) {
+            const topicList = document.getElementById('topic-list');
+            currentTopics = topics;
+            
+            let html = '';
+            topics.forEach((topic, index) => {
+                const hasProCon = topic.proView && topic.conView;
+                
+                html += `
+                    <div class="topic-option" onclick="selectTopicOption(${index}, '${topic.title.replace(/'/g, "\\'")}')">
+                        <div class="select-indicator"></div>
+                        <h3>${topic.title}</h3>
+                        <p class="topic-description">${topic.description || ''}</p>
+                        ${hasProCon ? `
+                            <div class="pro-con-preview">
+                                <div class="pro-preview">
+                                    <span class="pro-label">👍 찬성</span>
+                                    <span class="pro-text">${topic.proView}</span>
+                                </div>
+                                <div class="con-preview">
+                                    <span class="con-label">👎 반대</span>
+                                    <span class="con-text">${topic.conView}</span>
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            });
+            
+            topicList.innerHTML = html;
+            showSection('topic-selection');
+            
+            // 재추천 섹션 표시
+            const reRecommendSection = document.getElementById('re-recommendation-section');
+            if (reRecommendSection) {
+                reRecommendSection.classList.remove('hidden');
+                reRecommendSection.style.display = 'block';
+                reRecommendSection.style.visibility = 'visible';
+            }
+            
+            document.getElementById('topic-selection').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // ===== 주제 선택 =====
+        function selectTopicOption(index, topicTitle) {
+            // 이전 선택 제거
+            document.querySelectorAll('.topic-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            
+            // 현재 선택 표시
+            const selectedOption = document.querySelectorAll('.topic-option')[index];
+            selectedOption.classList.add('selected');
+            
+            // 전역 변수에 선택된 주제 저장
+            selectedTopic = currentTopics[index].title;
+            
+            // 주제 추천 단계에서 선택한 목적을 시나리오 생성 단계에 자동 반영
+            const selectedTopicPurpose = document.getElementById('topic-purpose').value;
+            if (selectedTopicPurpose) {
+                const scenarioPurposeField = document.getElementById('purpose');
+                if (scenarioPurposeField) {
+                    scenarioPurposeField.value = selectedTopicPurpose;
+                }
+            }
+            
+            // 시나리오 생성 섹션 표시
+            showSection('scenario-generation');
+            document.getElementById('scenario-generation').scrollIntoView({ behavior: 'smooth' });
+            
+            let statusMessage = `"${topicTitle}" 주제가 선택되었습니다!`;
+            if (selectedTopicPurpose) {
+                statusMessage += ` (${selectedTopicPurpose} 목적 반영됨)`;
+            }
+            showStatus(statusMessage, 'success');
+        }
+
+        // ===== 시나리오 생성 =====
+        async function generateScenario() {
+            if (!selectedTopic) {
+                showStatus('먼저 토론 주제를 선택해주세요.', 'error');
+                return;
+            }
+
+            const grade = document.getElementById('grade').value;
+            
+            // 다중 선택된 교과들 수집
+            const selectedSubjects = Array.from(document.querySelectorAll('input[name="subject"]:checked'))
+                .map(checkbox => checkbox.value);
+            const subjectText = selectedSubjects.length > 0 ? selectedSubjects.join(', ') : '';
+            
+            const time = document.getElementById('time').value;
+            // 토론 주제 추천 단계에서 선택한 목적 사용
+            const topicPurposeField = document.getElementById('topic-purpose');
+            const purpose = topicPurposeField ? topicPurposeField.value.trim() : '';
+
+            const generateBtn = document.getElementById('generate-btn');
+            generateBtn.disabled = true;
+            showAIProgress('scenario');
+
+            try {
+                const prompt = `다음 주제에 대한 토론 시나리오를 만들어주세요: "${selectedTopic}"
+
+${grade ? `대상 학년: ${grade}` : ''}
+${subjectText ? `관련 교과: ${subjectText}` : ''}
+${purpose ? `토론 목적: ${purpose}` : ''}`;
+
+                const scenario = await callOpenAI(prompt);
+                
+                hideAIProgress();
+                generateBtn.disabled = false;
+                
+                displayFormattedScenario(scenario);
+                showStatus('토론 시나리오가 생성되었습니다!', 'success');
+                
+            } catch (error) {
+                console.error('시나리오 생성 오류:', error);
+                hideAIProgress();
+                generateBtn.disabled = false;
+                showStatus('시나리오 생성 중 오류가 발생했습니다. 다시 시도해주세요.', 'error');
+            }
+        }
+
+        // ===== 시나리오 표시 함수 =====
+        function displayFormattedScenario(scenario) {
+            const container = document.getElementById('scenario-result');
+            if (!container) {
+                console.error('❌ scenario-result 컨테이너를 찾을 수 없습니다');
+                return;
+            }
+            
+            const sections = parseScenario(scenario);
+            
+            let html = '';
+            
+            // 토론 제목 및 주제 섹션
+            if (sections.title || sections.topic) {
+                html += `
+                    <div class="scenario-section topic-section">
+                        <h2>${sections.title || sections.topic}</h2>
+                        ${sections.topic && sections.title !== sections.topic ? `<p class="topic-detail">${sections.topic}</p>` : ''}
+                    </div>
+                `;
+            }
+            
+            // 메타데이터 (학년, 교과, 키워드)
+            if (sections.grade || sections.subject.length > 0 || sections.keywords.length > 0) {
+                html += `
+                    <div class="scenario-section metadata-section">
+                        <h3><span class="icon">📋</span>토론 정보</h3>
+                        <div class="metadata-grid">
+                            ${sections.grade ? `<div class="metadata-item"><strong>대상 학년:</strong> ${sections.grade}</div>` : ''}
+                            ${sections.subject.length > 0 ? `<div class="metadata-item"><strong>관련 교과:</strong> ${sections.subject.join(', ')}</div>` : ''}
+                            ${sections.keywords.length > 0 ? `<div class="metadata-item"><strong>핵심 키워드:</strong> ${sections.keywords.join(', ')}</div>` : ''}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // 토론 배경 섹션
+            if (sections.background) {
+                html += `
+                    <div class="scenario-section">
+                        <h3><span class="icon">📚</span>토론 배경 설명</h3>
+                        <div class="scenario-content">
+                            <p>${sections.background}</p>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // 찬성 vs 반대 논점
+            if (sections.proArguments.length > 0 || sections.conArguments.length > 0) {
+                html += `
+                    <div class="scenario-section">
+                        <h3><span class="icon">⚖️</span>주요 논점</h3>
+                        <div class="pros-cons-container">
+                            <div class="pros-box">
+                                <h4>✅ 찬성 측 논거</h4>
+                                <div class="scenario-content">
+                                    ${sections.proArguments.length > 0 
+                                        ? `<ul>${sections.proArguments.map(arg => `<li>${arg}</li>`).join('')}</ul>`
+                                        : '<p>찬성 논점을 준비 중입니다.</p>'}
+                                </div>
+                            </div>
+                            <div class="cons-box">
+                                <h4>❌ 반대 측 논거</h4>
+                                <div class="scenario-content">
+                                    ${sections.conArguments.length > 0 
+                                        ? `<ul>${sections.conArguments.map(arg => `<li>${arg}</li>`).join('')}</ul>`
+                                        : '<p>반대 논점을 준비 중입니다.</p>'}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // 핵심 질문들
+            if (sections.keyQuestions.length > 0) {
+                const topicPurposeField = document.getElementById('topic-purpose');
+                const purpose = topicPurposeField ? topicPurposeField.value.trim() : '';
+                const purposeClass = getPurposeClass(purpose);
+                
+                html += `
+                    <div class="scenario-section ${purposeClass}">
+                        <h3><span class="icon">❓</span>핵심 질문들 ${purpose ? `<span class="purpose-tag" data-purpose="${purpose}">${purpose}</span>` : ''}</h3>
+                        <div class="scenario-content">
+                            <ul class="key-questions-list">
+                                ${sections.keyQuestions.map(question => `<li class="question-item">${question}</li>`).join('')}
+                            </ul>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // 기대 학습 성과
+            if (sections.expectedOutcomes.length > 0) {
+                html += `
+                    <div class="scenario-section">
+                        <h3><span class="icon">🎯</span>기대 학습 성과</h3>
+                        <div class="scenario-content">
+                            <ul class="outcomes-list">
+                                ${sections.expectedOutcomes.map(outcome => `<li>${outcome}</li>`).join('')}
+                            </ul>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // 준비물 (토글 방식)
+            if (sections.materials.length > 0) {
+                const materialsId = 'materials-' + Math.random().toString(36).substr(2, 9);
+                html += `
+                    <div class="scenario-section">
+                        <h3 class="materials-toggle" onclick="toggleMaterials('${materialsId}')" style="cursor: pointer; user-select: none;">
+                            <span class="icon">📦</span>준비물 
+                            <span class="toggle-indicator" id="${materialsId}-indicator">▼</span>
+                        </h3>
+                        <div class="scenario-content materials-content" id="${materialsId}" style="display: none;">
+                            <ul class="materials-list">
+                                ${sections.materials.map(material => `<li>${material}</li>`).join('')}
+                            </ul>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // 교사 지도 팁
+            if (sections.teacherTips) {
+                const topicPurposeField = document.getElementById('topic-purpose');
+                const purpose = topicPurposeField ? topicPurposeField.value.trim() : '';
+                const purposeClass = getPurposeClass(purpose);
+                
+                html += `
+                    <div class="scenario-section ${purposeClass}">
+                        <h3><span class="icon">👩‍🏫</span>교사 지도 팁 ${purpose ? `<span class="purpose-tag" data-purpose="${purpose}">${purpose}</span>` : ''}</h3>
+                        <div class="scenario-content">
+                            <div class="teacher-tips-content">
+                                <p>${sections.teacherTips}</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            if (html.length === 0) {
+                html = '<div class="scenario-section"><p>시나리오 파싱에 실패했습니다.</p></div>';
+            }
+            
+            container.innerHTML = html;
+            
+            // 시나리오 생성 완료 후 섹션 표시
+            showSection('result-section');
+            setTimeout(() => {
+                document.querySelector('.scenario-section').scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'start' 
+                });
+            }, 100);
+        }
+
+        // ===== JSON 시나리오 파싱 함수 =====
+        function parseScenario(scenario) {
+            // 기본 구조체
+            const sections = {
+                title: '',
+                topic: '',
+                background: '',
+                proArguments: [],
+                conArguments: [],
+                teacherTips: '',
+                keyQuestions: [],
+                expectedOutcomes: [],
+                materials: [],
+                grade: '',
+                subject: [],
+                keywords: []
+            };
+            
+            if (!scenario) {
+                return sections;
+            }
+
+            // JSON 파싱 시도
+            try {
+                let jsonData;
+                
+                // JSON 형식인지 확인
+                if (scenario.trim().startsWith('{')) {
+                    jsonData = JSON.parse(scenario);
+                } else {
+                    // 마크다운 코드 블록에서 JSON 추출
+                    const jsonMatch = scenario.match(/```(?:json)?\s*(\{[\s\S]*?\})\s*```/);
+                    if (jsonMatch) {
+                        jsonData = JSON.parse(jsonMatch[1]);
+                    } else {
+                        // 단순 JSON 객체 찾기
+                        const jsonStart = scenario.indexOf('{');
+                        const jsonEnd = scenario.lastIndexOf('}');
+                        if (jsonStart !== -1 && jsonEnd !== -1 && jsonEnd > jsonStart) {
+                            const jsonStr = scenario.substring(jsonStart, jsonEnd + 1);
+                            jsonData = JSON.parse(jsonStr);
+                        }
+                    }
+                }
+                
+                if (jsonData) {
+                    // JSON 데이터를 sections 구조에 매핑
+                    sections.title = jsonData.title || '';
+                    sections.topic = jsonData.topic || '';
+                    sections.background = jsonData.background || '';
+                    sections.proArguments = Array.isArray(jsonData.proArguments) ? jsonData.proArguments : [];
+                    sections.conArguments = Array.isArray(jsonData.conArguments) ? jsonData.conArguments : [];
+                    sections.teacherTips = jsonData.teacherTips || '';
+                    sections.keyQuestions = Array.isArray(jsonData.keyQuestions) ? jsonData.keyQuestions : [];
+                    sections.expectedOutcomes = Array.isArray(jsonData.expectedOutcomes) ? jsonData.expectedOutcomes : [];
+                    sections.materials = Array.isArray(jsonData.materials) ? jsonData.materials : [];
+                    sections.grade = jsonData.grade || '';
+                    sections.subject = Array.isArray(jsonData.subject) ? jsonData.subject : [];
+                    sections.keywords = Array.isArray(jsonData.keywords) ? jsonData.keywords : [];
+                    
+                    return sections;
+                } else {
+                    throw new Error('JSON 데이터를 찾을 수 없습니다');
+                }
+            } catch (e) {
+                console.log('⚠️ JSON 파싱 실패, 원본 텍스트 반환:', e.message);
+                
+                // 레거시 텍스트 파싱을 위한 기본값 반환
+                sections.topic = selectedTopic || '토론 주제';
+                sections.background = scenario.substring(0, 200) + '...';
+                
+                return sections;
+            }
+        }
+
+        // ===== 토론 목적별 스타일 클래스 =====
+        function getPurposeClass(purpose) {
+            if (!purpose) return '';
+            
+            const purposeMapping = {
+                '비판적': 'purpose-critical',
+                '의사소통': 'purpose-communication', 
+                '창의적': 'purpose-creative',
+                '민주': 'purpose-democratic',
+                '다양한': 'purpose-perspective',
+                '관점': 'purpose-perspective'
+            };
+            
+            // 목적 텍스트에서 키워드 찾기
+            for (const [keyword, className] of Object.entries(purposeMapping)) {
+                if (purpose.includes(keyword)) {
+                    return className;
+                }
+            }
+            
+            return 'purpose-general';
+        }
+
+        // ===== 재추천 시스템 =====
+        async function reRecommendTopics() {
+            const keyword = document.getElementById('keyword').value.trim();
+            
+            if (!keyword) {
+                showStatus('키워드를 먼저 입력해주세요.', 'error');
+                return;
+            }
+
+            // 피드백 수집
+            const feedbackCheckboxes = document.querySelectorAll('input[name="feedback"]:checked');
+            const manualFeedback = document.getElementById('manual-feedback').value.trim();
+            
+            const feedbackOptions = Array.from(feedbackCheckboxes).map(cb => cb.value);
+            let feedbackText = '';
+            
+            if (feedbackOptions.length > 0) {
+                feedbackText += `다음 피드백을 반영해주세요: ${feedbackOptions.join(', ')}. `;
+            }
+            
+            if (manualFeedback) {
+                feedbackText += `추가 요청사항: ${manualFeedback}`;
+            }
+            
+            if (!feedbackText) {
+                feedbackText = '이전 주제들과는 다른 새로운 관점의 주제를 추천해주세요.';
+            }
+
+            const reRecommendBtn = document.getElementById('re-recommend-btn');
+            reRecommendBtn.disabled = true;
+            showAIProgress('re-recommend');
+
+            try {
+                const prompt = `키워드: "${keyword}", 피드백: ${feedbackText}, 이전 주제들: ${currentTopics.map(t => t.title).join(', ')} - 개선된 토론 주제 3개 재추천`;
+                const response = await callOpenAI(prompt + ' 주제 추천');
+
+                const topics = parseTopicResponse(response, keyword);
+                displayTopics(topics);
+                hideAIProgress();
+                reRecommendBtn.disabled = false;
+                showStatus('피드백을 반영한 새로운 주제 3개를 추천했습니다!', 'success');
+                
+                // 피드백 폼 초기화
+                document.querySelectorAll('input[name="feedback"]').forEach(cb => cb.checked = false);
+                document.getElementById('manual-feedback').value = '';
+                
+            } catch (error) {
+                console.error('재추천 오류:', error);
+                hideAIProgress();
+                reRecommendBtn.disabled = false;
+                showStatus('재추천 중 오류가 발생했습니다. 다시 시도해주세요.', 'error');
+            }
+        }
+
+        // ===== 준비물 토글 =====
+        function toggleMaterials(materialsId) {
+            const content = document.getElementById(materialsId);
+            const indicator = document.getElementById(materialsId + '-indicator');
+            
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                indicator.textContent = '▲';
+                indicator.classList.add('rotated');
+            } else {
+                content.style.display = 'none';
+                indicator.textContent = '▼';
+                indicator.classList.remove('rotated');
+            }
+        }
+
+        // ===== 시나리오 저장 =====
+        function saveScenario() {
+            const content = document.getElementById('scenario-result');
+            if (!content || content.innerHTML.trim() === '') {
+                showStatus('저장할 시나리오가 없습니다.', 'error');
+                return;
+            }
+            
+            const title = selectedTopic || '토론_시나리오';
+            const date = new Date().toISOString().split('T')[0];
+            const filename = `${title}_${date}.html`;
+            
+            const htmlContent = `
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${title} - AI 토론 시나리오</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; margin: 20px; line-height: 1.6; }
+        .scenario-section { margin-bottom: 30px; padding: 20px; border-radius: 8px; }
+        h2, h3 { color: #3b82f6; }
+        .pros-cons-container { display: flex; gap: 20px; }
+        .pros-box, .cons-box { flex: 1; padding: 15px; border-radius: 8px; }
+        .pros-box { background: #f0fdf4; border-left: 4px solid #10b981; }
+        .cons-box { background: #fef2f2; border-left: 4px solid #ef4444; }
+        ul { padding-left: 20px; }
+        @media print { body { margin: 10px; } }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎯 AI 토론 시나리오</h1>
+        <p>생성일: ${new Date().toLocaleDateString('ko-KR')}</p>
+    </div>
+    <div class="content">
+        ${content.innerHTML}
+    </div>
+</body>
+</html>
+            `;
+            
+            const blob = new Blob([htmlContent], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            showStatus('시나리오가 저장되었습니다!', 'success');
+        }
+
+        // ===== 시나리오 인쇄 =====
+        function printScenario() {
+            const content = document.getElementById('scenario-result');
+            if (!content || content.innerHTML.trim() === '') {
+                showStatus('인쇄할 시나리오가 없습니다.', 'error');
+                return;
+            }
+            
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html lang="ko">
+                <head>
+                    <meta charset="UTF-8">
+                    <title>${selectedTopic || '토론 시나리오'} - 인쇄</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; margin: 20px; }
+                        h2, h3 { color: #2563eb; }
+                        .pros-cons-container { display: flex; gap: 20px; }
+                        .pros-box, .cons-box { flex: 1; }
+                        ul { padding-left: 20px; }
+                        @media print { body { margin: 10px; } }
+                    </style>
+                </head>
+                <body>
+                    ${content.innerHTML}
+                </body>
+                </html>
+            `);
+            
+            printWindow.document.close();
+            printWindow.print();
+            showStatus('인쇄 준비가 완료되었습니다!', 'success');
+        }
+
+        // ===== 시나리오 복사 =====
+        function copyScenario() {
+            const content = document.getElementById('scenario-result');
+            if (!content || content.innerHTML.trim() === '') {
+                showStatus('복사할 시나리오가 없습니다.', 'error');
+                return;
+            }
+            
+            const textContent = content.innerText;
+            navigator.clipboard.writeText(textContent).then(() => {
+                showStatus('시나리오가 클립보드에 복사되었습니다!', 'success');
+            }).catch(() => {
+                showStatus('복사에 실패했습니다.', 'error');
+            });
+        }
+
+        // ===== AI 진행률 팝업 함수들 =====
+        let aiProgressModal = null;
+        let progressSteps = [];
+        let currentStep = 0;
+        let progressInterval = null;
+
+        function showAIProgress(type = 'topic') {
+            // 진행 단계 설정
+            if (type === 'topic') {
+                progressSteps = [
+                    { text: '키워드 분석 중...', icon: '🔍' },
+                    { text: '주제 아이디어 생성 중...', icon: '💡' },
+                    { text: '교육적 적합성 검토 중...', icon: '📚' },
+                    { text: '찬반 논점 구성 중...', icon: '⚖️' },
+                    { text: '최종 주제 완성 중...', icon: '✨' }
+                ];
+            } else if (type === 'scenario') {
+                progressSteps = [
+                    { text: '주제 분석 중...', icon: '🎯' },
+                    { text: '토론 구조 설계 중...', icon: '🏗️' },
+                    { text: '논점 상세화 중...', icon: '📝' },
+                    { text: '교육 자료 구성 중...', icon: '📚' },
+                    { text: '교사 가이드 생성 중...', icon: '👩‍🏫' },
+                    { text: '최종 시나리오 완성 중...', icon: '🎉' }
+                ];
+            } else if (type === 're-recommend') {
+                progressSteps = [
+                    { text: '피드백 분석 중...', icon: '🔄' },
+                    { text: '이전 주제 검토 중...', icon: '📋' },
+                    { text: '새로운 아이디어 생성 중...', icon: '💡' },
+                    { text: '개선된 주제 구성 중...', icon: '🎯' },
+                    { text: '최종 추천 완성 중...', icon: '✨' }
+                ];
+            }
+            
+            currentStep = 0;
+            
+            // 팝업 HTML 생성
+            const titles = {
+                'topic': '토론 주제를 생성 중입니다',
+                'scenario': '시나리오를 생성 중입니다',
+                're-recommend': '개선된 주제를 추천 중입니다'
+            };
+            
+            const durations = {
+                'topic': '10-15',
+                'scenario': '20-30',
+                're-recommend': '10-15'
+            };
+            
+            const modalHTML = `
+                <div class="ai-progress-overlay" id="ai-progress-overlay">
+                    <div class="ai-progress-modal">
+                        <div class="ai-progress-icon">🤖</div>
+                        <div class="ai-progress-title">${titles[type] || '처리 중입니다'}</div>
+                        <div class="ai-progress-subtitle">약 ${durations[type] || '10-20'}초 소요됩니다</div>
+                        
+                        <div class="ai-progress-bar-container">
+                            <div class="ai-progress-bar" id="ai-progress-bar"></div>
+                        </div>
+                        
+                        <div class="ai-progress-steps">
+                            ${progressSteps.map((step, index) => `
+                                <div class="ai-progress-step" id="progress-step-${index}">
+                                    <span class="ai-progress-step-icon">${step.icon}</span>
+                                    <span>${step.text}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // DOM에 추가
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+            aiProgressModal = document.getElementById('ai-progress-overlay');
+            
+            // 진행률 애니메이션 시작
+            startProgressAnimation();
+        }
+
+        function startProgressAnimation() {
+            const progressBar = document.getElementById('ai-progress-bar');
+            const totalSteps = progressSteps.length;
+            const stepDuration = 2000; // 각 단계당 2초
+            
+            progressInterval = setInterval(() => {
+                // 이전 단계 완료 표시
+                if (currentStep > 0) {
+                    const prevStep = document.getElementById(`progress-step-${currentStep - 1}`);
+                    if (prevStep) {
+                        prevStep.classList.remove('active');
+                        prevStep.classList.add('completed');
+                        prevStep.querySelector('.ai-progress-step-icon').textContent = '✅';
+                    }
+                }
+                
+                // 현재 단계 활성화
+                if (currentStep < totalSteps) {
+                    const currentStepEl = document.getElementById(`progress-step-${currentStep}`);
+                    if (currentStepEl) {
+                        currentStepEl.classList.add('active');
+                    }
+                    
+                    // 진행률 바 업데이트
+                    const progress = ((currentStep + 1) / totalSteps) * 100;
+                    if (progressBar) {
+                        progressBar.style.width = `${progress}%`;
+                    }
+                    
+                    currentStep++;
+                } else {
+                    // 모든 단계 완료
+                    clearInterval(progressInterval);
+                }
+            }, stepDuration);
+        }
+
+        function hideAIProgress() {
+            if (progressInterval) {
+                clearInterval(progressInterval);
+                progressInterval = null;
+            }
+            
+            if (aiProgressModal) {
+                aiProgressModal.style.animation = 'aiProgressSlideIn 0.3s ease-out reverse';
+                setTimeout(() => {
+                    if (aiProgressModal) {
+                        aiProgressModal.remove();
+                        aiProgressModal = null;
+                    }
+                }, 300);
+            }
+        }
+    </script>
+</body>
+</html>

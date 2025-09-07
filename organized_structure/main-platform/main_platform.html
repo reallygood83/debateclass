@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>질문톡톡! 논제샘솟! - AI 토론 교육 플랫폼</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #2563eb;
+            --primary-hover: #1d4ed8;
+            --secondary-color: #64748b;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-color: #1f2937;
+            --border-color: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --gradient-primary: linear-gradient(135deg, var(--primary-color), #3b82f6);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* 헤더 */
+        .main-header {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .main-header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .main-header p {
+            font-size: 1.2rem;
+            opacity: 0.95;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* 컨테이너 */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* 메인 서비스 섹션 */
+        .main-service {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: var(--shadow-lg);
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .main-service h2 {
+            font-size: 1.8rem;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .main-service p {
+            font-size: 1.1rem;
+            color: var(--secondary-color);
+            margin-bottom: 30px;
+            line-height: 1.7;
+        }
+
+        .main-launch-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--gradient-primary);
+            color: white;
+            padding: 18px 36px;
+            border: none;
+            border-radius: 15px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            box-shadow: var(--shadow);
+        }
+
+        .main-launch-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(37, 99, 235, 0.3);
+        }
+
+        /* 추가 도구 섹션 */
+        .additional-tools {
+            margin-top: 50px;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            color: var(--text-color);
+            margin-bottom: 25px;
+            text-align: center;
+            font-weight: 700;
+        }
+
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .tool-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            border: 2px solid transparent;
+        }
+
+        .tool-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary-color);
+        }
+
+        .tool-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(37, 99, 235, 0.05), transparent);
+            transition: left 0.5s;
+        }
+
+        .tool-card:hover::before {
+            left: 100%;
+        }
+
+        .tool-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .tool-card h3 {
+            font-size: 1.3rem;
+            color: var(--primary-color);
+            margin-bottom: 12px;
+            font-weight: 700;
+        }
+
+        .tool-card p {
+            color: var(--secondary-color);
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .tool-features {
+            list-style: none;
+            margin-bottom: 25px;
+        }
+
+        .tool-features li {
+            color: var(--text-color);
+            padding: 5px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+
+        .tool-features li::before {
+            content: '✓';
+            color: var(--success-color);
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .tool-btn {
+            width: 100%;
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .tool-btn:hover {
+            background: linear-gradient(135deg, #1d4ed8, #2563eb);
+            transform: scale(1.02);
+        }
+
+        /* 상태 배지 */
+        .status-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            background: var(--warning-color);
+            color: white;
+        }
+
+
+        /* 반응형 디자인 */
+        @media (max-width: 768px) {
+            .main-header {
+                padding: 25px 15px;
+            }
+
+            .main-header h1 {
+                font-size: 2rem;
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .container {
+                padding: 25px 15px;
+            }
+
+            .main-service {
+                padding: 30px 20px;
+            }
+
+            .tools-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .tool-card {
+                padding: 20px;
+            }
+
+        }
+
+        /* 내비게이션 바 스타일 */
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            padding: 15px 0;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 30px;
+        }
+
+        .nav-item {
+            color: var(--text-color);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-item:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .nav-item.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        /* 모바일 네비게이션 */
+        .nav-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--primary-color);
+        }
+
+        @media (max-width: 768px) {
+            .nav-toggle {
+                display: block;
+            }
+
+            .nav-menu {
+                position: fixed;
+                top: 70px;
+                left: -100%;
+                width: 100%;
+                height: calc(100vh - 70px);
+                background: white;
+                flex-direction: column;
+                align-items: center;
+                justify-content: flex-start;
+                padding-top: 50px;
+                transition: left 0.3s ease;
+                gap: 20px;
+            }
+
+            .nav-menu.active {
+                left: 0;
+            }
+        }
+
+        /* 페이지 섹션 스타일 */
+        .page-section {
+            display: none;
+            min-height: 100vh;
+            padding-top: 100px;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        .page-section.active {
+            display: block;
+        }
+
+        .page-section.home {
+            padding-top: 20px;
+        }
+
+        /* SPA 전용 스타일 */
+        .spa-container {
+            padding-top: 80px;
+        }
+
+        .tool-content {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            margin: 20px 0;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .back-btn {
+            position: fixed;
+            top: 90px;
+            left: 20px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow);
+            z-index: 999;
+        }
+
+        .back-btn:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* 로딩 애니메이션 */
+        .loading {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10000;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid var(--border-color);
+            border-top-color: var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* 추가 애니메이션 효과 */
+        .fade-in {
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+    </style>
+</head>
+<body>
+    <!-- 내비게이션 바 -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo" onclick="showPage('home')">
+                <span>💬</span>
+                질문톡톡! 논제샘솟!
+            </div>
+            <ul class="nav-menu" id="navMenu">
+                <li class="nav-item active" onclick="showPage('home')">🏠 홈</li>
+                <li class="nav-item" onclick="window.open('https://question-talk.vercel.app/platform', '_blank')">🚀 질문톡톡</li>
+                <li class="nav-item" onclick="showPage('scenario-creation')">🎯 시나리오 생성</li>
+                <li class="nav-item" onclick="showPage('debate-session')">💬 토론 진행</li>
+                <li class="nav-item" onclick="showPage('evidence')">🧠 근거자료</li>
+                <li class="nav-item" onclick="showPage('feedback')">✍️ 피드백</li>
+            </ul>
+            <button class="nav-toggle" onclick="toggleNavMenu()">☰</button>
+        </div>
+    </nav>
+
+    <!-- 홈 페이지 -->
+    <div class="page-section home active" id="home-page">
+        <!-- 메인 헤더 -->
+        <header class="main-header">
+            <h1>
+                <span>💬</span>
+                질문톡톡! 논제샘솟!
+            </h1>
+            <p>학생들의 질문으로 토론 논제를 발굴하는 혁신적인 AI 교육 플랫폼</p>
+        </header>
+
+        <!-- 메인 컨테이너 -->
+        <div class="container">
+            <!-- 메인 서비스 -->
+            <div class="main-service fade-in">
+                <h2>
+                    <span>🎯</span>
+                    실시간 토론 세션 관리
+                </h2>
+                <p>
+                    교사와 학생이 함께 만들어가는 토론 교육의 새로운 경험!<br>
+                    실시간 질문 수집부터 AI 논제 추천까지, 모든 것이 한 번에 가능합니다.
+                </p>
+                <a href="https://question-talk.vercel.app/platform" target="_blank" class="main-launch-btn">
+                    <span>🚀</span>
+                    질문톡톡 시작하기
+                </a>
+            </div>
+
+            <!-- 추가 도구 섹션 -->
+            <div class="additional-tools fade-in">
+                <h2 class="section-title">🛠️ 추가 교육 도구</h2>
+                
+                <div class="tools-grid">
+                    <!-- 1. 토론 시나리오 생성 -->
+                    <div class="tool-card" onclick="showPage('scenario-creation')">
+                        <div class="status-badge">교육도구</div>
+                        <div class="tool-icon">🎯</div>
+                        <h3>토론 시나리오 생성</h3>
+                        <p>키워드 입력만으로 맞춤형 토론 주제와 상세한 교육 시나리오를 자동 생성합니다.</p>
+                        <ul class="tool-features">
+                            <li>AI 기반 토론 주제 자동 생성</li>
+                            <li>초등교육과정 연계 시나리오</li>
+                            <li>교과별 맞춤형 내용 구성</li>
+                            <li>인쇄 가능한 PDF 출력</li>
+                        </ul>
+                        <button class="tool-btn" onclick="showPage('scenario-creation')">🎯 시나리오 생성하기</button>
+                    </div>
+
+                    <!-- 2. 실시간 토론 진행 -->
+                    <div class="tool-card">
+                        <div class="status-badge">교육도구</div>
+                        <div class="tool-icon">💬</div>
+                        <h3>실시간 토론 진행</h3>
+                        <p>초등토론교육모형 기반으로 체계적인 토론 수업을 실시간으로 진행할 수 있습니다.</p>
+                        <ul class="tool-features">
+                            <li>4단계 토론 진행 시스템</li>
+                            <li>실시간 의견 수집</li>
+                            <li>타이머 및 진행 가이드</li>
+                            <li>학급 관리 도구</li>
+                        </ul>
+                        <button class="tool-btn" onclick="showPage('debate-session')">💬 토론 시작하기</button>
+                    </div>
+
+                    <!-- 3. 근거자료 검색 -->
+                    <div class="tool-card">
+                        <div class="status-badge">교육도구</div>
+                        <div class="tool-icon">🧠</div>
+                        <h3>근거자료 검색</h3>
+                        <p>유튜브, 뉴스 기사 등 다양한 근거자료를 검색하여 토론 교육에 바로 활용 가능합니다.</p>
+                        <ul class="tool-features">
+                            <li>유튜브 교육 영상 검색</li>
+                            <li>네이버 뉴스 기사 연동</li>
+                            <li>검증된 교육 자료 제공</li>
+                            <li>즉시 수업 활용 가능</li>
+                        </ul>
+                        <button class="tool-btn" onclick="showPage('evidence')">🧠 자료 검색하기</button>
+                    </div>
+
+                    <!-- 4. 학생 의견 피드백 -->
+                    <div class="tool-card">
+                        <div class="status-badge">교육도구</div>
+                        <div class="tool-icon">✍️</div>
+                        <h3>학생 의견 피드백</h3>
+                        <p>학생의 토론 참여 내용을 분석하여 개별 맞춤형 피드백을 자동으로 제공합니다.</p>
+                        <ul class="tool-features">
+                            <li>AI 기반 개별 피드백</li>
+                            <li>논리적 사고력 분석</li>
+                            <li>표현력 향상 가이드</li>
+                            <li>발전 방향 제시</li>
+                        </ul>
+                        <button class="tool-btn" onclick="showPage('feedback')">✍️ 피드백 받기</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 토론 시나리오 생성 페이지 -->
+    <div class="page-section spa-container" id="scenario-creation-page">
+        <button class="back-btn" onclick="showPage('home')">← 홈으로</button>
+        <div class="container">
+            <div class="tool-content">
+                <h1>🎯 토론 시나리오 생성</h1>
+                <p>이 기능을 불러오는 중입니다...</p>
+                <div id="scenario-content"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 실시간 토론 진행 페이지 -->
+    <div class="page-section spa-container" id="debate-session-page">
+        <button class="back-btn" onclick="showPage('home')">← 홈으로</button>
+        <div class="container">
+            <div class="tool-content">
+                <h1>💬 실시간 토론 진행</h1>
+                <p>이 기능을 불러오는 중입니다...</p>
+                <div id="debate-content"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 근거자료 검색 페이지 -->
+    <div class="page-section spa-container" id="evidence-page">
+        <button class="back-btn" onclick="showPage('home')">← 홈으로</button>
+        <div class="container">
+            <div class="tool-content">
+                <h1>🧠 근거자료 검색</h1>
+                <p>이 기능을 불러오는 중입니다...</p>
+                <div id="evidence-content"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 학생 의견 피드백 페이지 -->
+    <div class="page-section spa-container" id="feedback-page">
+        <button class="back-btn" onclick="showPage('home')">← 홈으로</button>
+        <div class="container">
+            <div class="tool-content">
+                <h1>✍️ 학생 의견 피드백</h1>
+                <p>이 기능을 불러오는 중입니다...</p>
+                <div id="feedback-content"></div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- 로딩 스피너 -->
+    <div id="loading" class="loading">
+        <div class="spinner"></div>
+    </div>
+
+    <script>
+        // SPA 페이지 관리 시스템
+        let currentPage = 'home';
+
+        // 도구 정보 - 독립 HTML 파일로 직접 연결
+        const tools = {
+            'scenario-creation': {
+                name: '토론 시나리오 생성',
+                icon: '🎯',
+                url: '../digital-tools/scenario-creation.html',
+                standalone: true
+            },
+            'debate-session': {
+                name: '실시간 토론 진행',
+                icon: '💬',
+                url: '../digital-tools/debate-session.html',
+                standalone: true
+            },
+            'evidence': {
+                name: '근거자료 검색',
+                icon: '🧠',
+                url: '../digital-tools/evidence-search.html',
+                standalone: true
+            },
+            'feedback': {
+                name: '학생 의견 피드백',
+                icon: '✍️',
+                url: '../digital-tools/feedback.html',
+                standalone: true
+            }
+        };
+
+        // 직접 네비게이션 함수 (독립 HTML 파일로 이동)
+        function showPage(pageId) {
+            // 홈 페이지가 아닌 경우 해당 독립 HTML 파일로 직접 이동
+            if (pageId !== 'home') {
+                const tool = tools[pageId];
+                if (tool && tool.standalone) {
+                    // 독립 HTML 파일로 직접 이동
+                    window.location.href = tool.url;
+                    return;
+                }
+            }
+
+            // 홈 페이지인 경우 현재 페이지에서 처리
+            // 로딩 표시
+            showLoading();
+
+            // 현재 활성 페이지 숨기기
+            document.querySelectorAll('.page-section').forEach(section => {
+                section.classList.remove('active');
+            });
+
+            // 내비게이션 활성 상태 업데이트
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+
+            // 홈 페이지 표시
+            const homeSection = document.getElementById('home-page');
+            if (homeSection) {
+                homeSection.classList.add('active');
+                currentPage = 'home';
+
+                // 홈 네비게이션 활성화
+                const navItems = document.querySelectorAll('.nav-item');
+                navItems.forEach(item => {
+                    if (item.textContent.includes('홈')) {
+                        item.classList.add('active');
+                    }
+                });
+
+                // 브라우저 히스토리 업데이트
+                if (history.pushState) {
+                    history.pushState({page: 'home'}, '', window.location.pathname);
+                }
+            }
+
+            // 로딩 숨기기
+            setTimeout(() => {
+                hideLoading();
+            }, 300);
+        }
+
+        // 직접 네비게이션 시스템으로 변경 (iframe 로딩 불필요)
+
+        // 페이지 제목 가져오기
+        function getPageTitle(pageId) {
+            const titles = {
+                'home': '홈',
+                'scenario-creation': '시나리오 생성',
+                'debate-session': '토론 진행', 
+                'evidence': '근거자료',
+                'feedback': '피드백'
+            };
+            return titles[pageId] || pageId;
+        }
+
+        // 모바일 내비게이션 토글
+        function toggleNavMenu() {
+            const navMenu = document.getElementById('navMenu');
+            navMenu.classList.toggle('active');
+        }
+
+        // 독립 HTML 파일 시스템으로 변경 (매뉴얼 버튼 불필요)
+
+        // 브라우저 뒤로가기/앞으로가기 처리
+        window.addEventListener('popstate', function(event) {
+            const page = event.state ? event.state.page : 'home';
+            showPage(page);
+        });
+
+        // URL 해시 처리
+        function handleUrlHash() {
+            const hash = window.location.hash.substring(1);
+            if (hash && tools[hash]) {
+                showPage(hash);
+            } else {
+                showPage('home');
+            }
+        }
+
+        // 로딩 표시/숨기기
+        function showLoading() {
+            document.getElementById('loading').style.display = 'block';
+        }
+
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
+        }
+
+        // 페이지 로드 시 초기화
+        window.addEventListener('load', function() {
+            // URL 해시 처리
+            handleUrlHash();
+
+            // 페이지 로드 애니메이션
+            const elements = document.querySelectorAll('.fade-in');
+            elements.forEach((el, index) => {
+                setTimeout(() => {
+                    el.style.opacity = '1';
+                }, index * 200);
+            });
+
+            // 스크롤 애니메이션 설정
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('fade-in');
+                    }
+                });
+            }, observerOptions);
+
+            // 모든 tool-card 관찰
+            document.querySelectorAll('.tool-card').forEach(card => {
+                observer.observe(card);
+            });
+
+            // 모바일에서 네비게이션 메뉴 외부 클릭 시 닫기
+            document.addEventListener('click', function(event) {
+                const navMenu = document.getElementById('navMenu');
+                const navToggle = document.querySelector('.nav-toggle');
+                
+                if (navMenu.classList.contains('active') && 
+                    !navMenu.contains(event.target) && 
+                    !navToggle.contains(event.target)) {
+                    navMenu.classList.remove('active');
+                }
+            });
+        });
+
+        // 해시 변경 감지
+        window.addEventListener('hashchange', handleUrlHash);
+    </script>
+</body>
+</html>

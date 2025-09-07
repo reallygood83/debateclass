@@ -1,0 +1,45 @@
+# 환경변수 파일
+.env
+.env.local
+.env.production
+.env.development
+
+# Node.js
+node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# Next.js
+.next/
+out/
+build/
+
+# Vercel
+.vercel
+
+# 로그 파일
+*.log
+
+# 임시 파일
+.DS_Store
+Thumbs.db
+
+# IDE 설정
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# 백업 파일
+*.bak
+*.backup
+
+# API 키가 포함된 설정 파일 (보안)
+config/secrets.js
+keys.json
+js/env-config.js
+
+# 캐시 디렉토리
+.cache/
+.parcel-cache/

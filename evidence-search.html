@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📚 토론 근거자료 검색 도구</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #059669;
+            --primary-hover: #047857;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --bg-color: #f0fdf4;
+            --card-bg: #ffffff;
+            --text-color: #1f2937;
+            --border-color: #d1fae5;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --gradient-primary: linear-gradient(135deg, var(--primary-color), #10b981);
+        }
+
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+            color: var(--text-color);
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: var(--shadow);
+            margin-bottom: 25px;
+        }
+
+        .search-section {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .search-input-group {
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            font-size: 1.1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .search-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 15px 30px;
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .search-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(5, 150, 105, 0.3);
+        }
+
+        .filter-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 12px;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .filter-label {
+            font-weight: 600;
+            color: var(--text-color);
+            font-size: 0.9rem;
+        }
+
+        .filter-select {
+            padding: 8px 12px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            background: white;
+            font-size: 0.95rem;
+        }
+
+        .results-section {
+            min-height: 400px;
+        }
+
+        .loading-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #64748b;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #64748b;
+        }
+
+        .empty-state .icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+
+        .result-item {
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .result-item:hover {
+            border-color: var(--primary-color);
+            box-shadow: 0 4px 15px rgba(5, 150, 105, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .result-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+
+        .result-source {
+            font-size: 0.9rem;
+            color: #6b7280;
+            background: #f3f4f6;
+            padding: 4px 8px;
+            border-radius: 6px;
+        }
+
+        .result-summary {
+            color: var(--text-color);
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .result-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+            font-size: 0.85rem;
+            color: #6b7280;
+            margin-bottom: 15px;
+        }
+
+        .result-tag {
+            background: #e0f2fe;
+            color: #0369a1;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+
+        .result-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn.primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .action-btn.primary:hover {
+            background: var(--primary-hover);
+        }
+
+        .action-btn.secondary {
+            background: #f3f4f6;
+            color: var(--text-color);
+        }
+
+        .action-btn.secondary:hover {
+            background: #e5e7eb;
+        }
+
+        .stats-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+
+        .floating-help {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            background: var(--success-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 20px;
+            cursor: pointer;
+            box-shadow: var(--shadow);
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .floating-help:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+        }
+
+        .export-section {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid var(--border-color);
+        }
+
+        .export-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .export-btn:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .search-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .filter-section {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .card {
+                padding: 20px;
+            }
+
+            .stats-section {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>
+                <span>📚</span>
+                토론 근거자료 검색 도구
+            </h1>
+            <p>신뢰할 수 있는 근거자료를 찾아 토론을 더욱 풍성하게 만드세요</p>
+        </div>
+
+        <div class="card">
+            <div class="search-section">
+                <div class="search-input-group">
+                    <input type="text" class="search-input" id="searchInput" 
+                           placeholder="검색할 주제나 키워드를 입력하세요 (예: 플라스틱 환경오염, AI 윤리)">
+                </div>
+                <button class="search-btn" onclick="searchEvidence()">
+                    <span>🔍</span>
+                    검색하기
+                </button>
+            </div>
+
+            <div class="filter-section">
+                <div class="filter-group">
+                    <label class="filter-label">📂 자료 유형</label>
+                    <select class="filter-select" id="sourceType">
+                        <option value="all">전체</option>
+                        <option value="news">뉴스 기사</option>
+                        <option value="academic">학술 자료</option>
+                        <option value="government">정부 발표</option>
+                        <option value="statistics">통계 자료</option>
+                        <option value="research">연구 보고서</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label class="filter-label">📅 기간</label>
+                    <select class="filter-select" id="timePeriod">
+                        <option value="all">전체 기간</option>
+                        <option value="recent">최근 1개월</option>
+                        <option value="quarter">최근 3개월</option>
+                        <option value="year">최근 1년</option>
+                        <option value="custom">직접 설정</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label class="filter-label">🎯 관점</label>
+                    <select class="filter-select" id="perspective">
+                        <option value="balanced">균형잡힌 시각</option>
+                        <option value="pro">찬성 관점</option>
+                        <option value="con">반대 관점</option>
+                        <option value="neutral">중립적 분석</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label class="filter-label">📊 신뢰도</label>
+                    <select class="filter-select" id="reliability">
+                        <option value="all">전체</option>
+                        <option value="high">높음</option>
+                        <option value="verified">검증된 자료만</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="stats-section" id="statsSection" style="display: none;">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalResults">0</div>
+                    <div class="stat-label">총 검색 결과</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="newsCount">0</div>
+                    <div class="stat-label">뉴스 기사</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="academicCount">0</div>
+                    <div class="stat-label">학술 자료</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="governmentCount">0</div>
+                    <div class="stat-label">정부 자료</div>
+                </div>
+            </div>
+
+            <div class="results-section" id="resultsSection">
+                <div class="empty-state" id="emptyState">
+                    <div class="icon">📚</div>
+                    <h3>검색을 시작해보세요</h3>
+                    <p>주제나 키워드를 입력하여 신뢰할 수 있는 근거자료를 찾아보세요</p>
+                </div>
+            </div>
+
+            <div class="export-section" id="exportSection" style="display: none;">
+                <button class="export-btn" onclick="exportResults('word')">
+                    <span>📄</span>
+                    워드로 내보내기
+                </button>
+                <button class="export-btn" onclick="exportResults('pdf')">
+                    <span>📑</span>
+                    PDF로 내보내기
+                </button>
+                <button class="export-btn" onclick="printResults()">
+                    <span>🖨️</span>
+                    인쇄하기
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 매뉴얼 도움말 버튼 -->
+    <button class="floating-help" onclick="showHelp()" title="사용자 매뉴얼">📖</button>
+
+    <script>
+        let searchResults = [];
+        let currentSearchTerm = '';
+
+        function searchEvidence() {
+            const searchTerm = document.getElementById('searchInput').value;
+            const sourceType = document.getElementById('sourceType').value;
+            const timePeriod = document.getElementById('timePeriod').value;
+            const perspective = document.getElementById('perspective').value;
+            const reliability = document.getElementById('reliability').value;
+
+            if (!searchTerm.trim()) {
+                alert('검색할 주제나 키워드를 입력해주세요.');
+                return;
+            }
+
+            currentSearchTerm = searchTerm;
+            showLoadingState();
+
+            // 시뮬레이션된 검색 (실제로는 API 호출)
+            setTimeout(() => {
+                const mockResults = generateMockResults(searchTerm, sourceType, timePeriod, perspective, reliability);
+                displayResults(mockResults);
+                updateStats(mockResults);
+                showExportSection();
+            }, 2000);
+        }
+
+        function showLoadingState() {
+            const resultsSection = document.getElementById('resultsSection');
+            resultsSection.innerHTML = `
+                <div class="loading-state">
+                    <div style="font-size: 3rem; margin-bottom: 20px;">⏳</div>
+                    <h3>근거자료 검색 중...</h3>
+                    <p>신뢰할 수 있는 자료를 찾고 있습니다</p>
+                </div>
+            `;
+        }
+
+        function generateMockResults(searchTerm, sourceType, timePeriod, perspective, reliability) {
+            const baseResults = [
+                {
+                    id: 1,
+                    title: `${searchTerm}에 대한 국정감사 자료집`,
+                    source: '정부 발표',
+                    summary: `${searchTerm} 관련 정부의 공식 입장과 정책 방향을 담은 자료입니다. 구체적인 통계와 근거가 포함되어 있어 토론에 활용하기 적합합니다.`,
+                    reliability: '높음',
+                    date: '2024년 11월',
+                    tags: ['정부자료', '공식통계', '정책자료'],
+                    url: '#',
+                    type: 'government'
+                },
+                {
+                    id: 2,
+                    title: `${searchTerm} 실태조사 결과 보고서`,
+                    source: '연구 보고서',
+                    summary: `전국 단위의 실태조사를 통해 ${searchTerm}의 현황과 문제점을 객관적으로 분석한 연구보고서입니다. 다양한 통계자료와 그래프가 포함되어 있습니다.`,
+                    reliability: '높음',
+                    date: '2024년 10월',
+                    tags: ['실태조사', '통계', '연구자료'],
+                    url: '#',
+                    type: 'research'
+                },
+                {
+                    id: 3,
+                    title: `"${searchTerm}", 전문가들은 어떻게 보나`,
+                    source: '뉴스 기사',
+                    summary: `${searchTerm}에 대한 각 분야 전문가들의 의견을 종합한 기사입니다. 다양한 관점에서의 분석과 전망을 확인할 수 있습니다.`,
+                    reliability: '보통',
+                    date: '2024년 12월',
+                    tags: ['전문가의견', '분석기사', '시사'],
+                    url: '#',
+                    type: 'news'
+                },
+                {
+                    id: 4,
+                    title: `${searchTerm} 관련 해외 사례 연구`,
+                    source: '학술 자료',
+                    summary: `선진국의 ${searchTerm} 정책과 그 효과를 분석한 학술논문입니다. 우리나라 상황과 비교 분석할 수 있는 귀중한 자료입니다.`,
+                    reliability: '높음',
+                    date: '2024년 9월',
+                    tags: ['학술논문', '해외사례', '비교연구'],
+                    url: '#',
+                    type: 'academic'
+                },
+                {
+                    id: 5,
+                    title: `${searchTerm} 통계청 공식 통계`,
+                    source: '통계 자료',
+                    summary: `통계청에서 발표한 ${searchTerm} 관련 공식 통계자료입니다. 연도별 변화 추이와 지역별 현황을 한눈에 볼 수 있습니다.`,
+                    reliability: '높음',
+                    date: '2024년 12월',
+                    tags: ['공식통계', '통계청', '데이터'],
+                    url: '#',
+                    type: 'statistics'
+                }
+            ];
+
+            // 필터링 적용
+            let filteredResults = baseResults;
+            
+            if (sourceType !== 'all') {
+                filteredResults = filteredResults.filter(result => result.type === sourceType);
+            }
+
+            if (reliability === 'high' || reliability === 'verified') {
+                filteredResults = filteredResults.filter(result => result.reliability === '높음');
+            }
+
+            return filteredResults;
+        }
+
+        function displayResults(results) {
+            searchResults = results;
+            const resultsSection = document.getElementById('resultsSection');
+            
+            if (results.length === 0) {
+                resultsSection.innerHTML = `
+                    <div class="empty-state">
+                        <div class="icon">🔍</div>
+                        <h3>검색 결과가 없습니다</h3>
+                        <p>다른 키워드로 다시 검색해보세요</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const resultsHTML = results.map(result => `
+                <div class="result-item">
+                    <div class="result-header">
+                        <div>
+                            <div class="result-title">${result.title}</div>
+                            <div class="result-source">${result.source}</div>
+                        </div>
+                    </div>
+                    <div class="result-summary">${result.summary}</div>
+                    <div class="result-meta">
+                        <span>📅 ${result.date}</span>
+                        <span>🔒 신뢰도: ${result.reliability}</span>
+                        <div style="margin-left: auto;">
+                            ${result.tags.map(tag => `<span class="result-tag">${tag}</span>`).join(' ')}
+                        </div>
+                    </div>
+                    <div class="result-actions">
+                        <button class="action-btn primary" onclick="viewSource(${result.id})">
+                            <span>👁️</span> 자료 보기
+                        </button>
+                        <button class="action-btn secondary" onclick="saveEvidence(${result.id})">
+                            <span>💾</span> 저장
+                        </button>
+                        <button class="action-btn secondary" onclick="citationFormat(${result.id})">
+                            <span>📋</span> 인용형식
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+
+            resultsSection.innerHTML = resultsHTML;
+        }
+
+        function updateStats(results) {
+            const statsSection = document.getElementById('statsSection');
+            statsSection.style.display = 'grid';
+
+            document.getElementById('totalResults').textContent = results.length;
+            document.getElementById('newsCount').textContent = results.filter(r => r.type === 'news').length;
+            document.getElementById('academicCount').textContent = results.filter(r => r.type === 'academic').length;
+            document.getElementById('governmentCount').textContent = results.filter(r => r.type === 'government').length;
+        }
+
+        function showExportSection() {
+            const exportSection = document.getElementById('exportSection');
+            exportSection.style.display = 'flex';
+        }
+
+        function viewSource(id) {
+            const result = searchResults.find(r => r.id === id);
+            alert(`"${result.title}" 자료를 새 창에서 열겠습니다.\n\n실제 구현 시에는 해당 자료의 URL로 이동합니다.`);
+        }
+
+        function saveEvidence(id) {
+            const result = searchResults.find(r => r.id === id);
+            alert(`"${result.title}" 자료가 나의 근거자료함에 저장되었습니다.`);
+        }
+
+        function citationFormat(id) {
+            const result = searchResults.find(r => r.id === id);
+            const citation = `${result.title}. ${result.source}, ${result.date}. Retrieved from ${result.url}`;
+            
+            navigator.clipboard.writeText(citation).then(() => {
+                alert('인용 형식이 클립보드에 복사되었습니다.\n\n' + citation);
+            });
+        }
+
+        function exportResults(format) {
+            if (searchResults.length === 0) {
+                alert('내보낼 검색 결과가 없습니다.');
+                return;
+            }
+
+            const content = generateExportContent();
+            
+            if (format === 'word') {
+                const blob = new Blob([content], { type: 'text/html' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `토론_근거자료_${currentSearchTerm}_${new Date().toISOString().split('T')[0]}.doc`;
+                a.click();
+                URL.revokeObjectURL(url);
+            } else if (format === 'pdf') {
+                alert('PDF 내보내기 기능이 준비 중입니다. 현재는 브라우저의 인쇄 기능을 사용해주세요.');
+                printResults();
+            }
+        }
+
+        function printResults() {
+            if (searchResults.length === 0) {
+                alert('인쇄할 검색 결과가 없습니다.');
+                return;
+            }
+
+            const content = generatePrintContent();
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <html>
+                <head>
+                    <title>토론 근거자료 - ${currentSearchTerm}</title>
+                    <style>
+                        body { font-family: 'Malgun Gothic', sans-serif; line-height: 1.6; margin: 20px; }
+                        h1 { color: #059669; border-bottom: 2px solid #059669; padding-bottom: 10px; }
+                        .result-item { margin-bottom: 30px; page-break-inside: avoid; }
+                        .result-title { font-size: 1.2rem; font-weight: bold; color: #059669; margin-bottom: 5px; }
+                        .result-meta { color: #666; font-size: 0.9rem; margin-bottom: 10px; }
+                        .result-summary { margin-bottom: 10px; }
+                        .result-tags { font-size: 0.8rem; color: #888; }
+                        @media print { 
+                            body { margin: 0; } 
+                            .no-print { display: none; }
+                        }
+                    </style>
+                </head>
+                <body>
+                    ${content}
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+            printWindow.print();
+        }
+
+        function generateExportContent() {
+            return `
+                <html>
+                <head>
+                    <meta charset="utf-8">
+                    <title>토론 근거자료 - ${currentSearchTerm}</title>
+                </head>
+                <body>
+                    <h1>📚 토론 근거자료 검색 결과</h1>
+                    <p><strong>검색 키워드:</strong> ${currentSearchTerm}</p>
+                    <p><strong>검색 일시:</strong> ${new Date().toLocaleString('ko-KR')}</p>
+                    <p><strong>총 ${searchResults.length}개의 자료</strong></p>
+                    <hr>
+                    ${searchResults.map((result, index) => `
+                        <h2>${index + 1}. ${result.title}</h2>
+                        <p><strong>출처:</strong> ${result.source} | <strong>신뢰도:</strong> ${result.reliability} | <strong>날짜:</strong> ${result.date}</p>
+                        <p><strong>요약:</strong> ${result.summary}</p>
+                        <p><strong>태그:</strong> ${result.tags.join(', ')}</p>
+                        <hr>
+                    `).join('')}
+                </body>
+                </html>
+            `;
+        }
+
+        function generatePrintContent() {
+            return `
+                <h1>📚 토론 근거자료 검색 결과</h1>
+                <div style="margin-bottom: 20px;">
+                    <p><strong>검색 키워드:</strong> ${currentSearchTerm}</p>
+                    <p><strong>검색 일시:</strong> ${new Date().toLocaleString('ko-KR')}</p>
+                    <p><strong>총 ${searchResults.length}개의 자료</strong></p>
+                </div>
+                ${searchResults.map((result, index) => `
+                    <div class="result-item">
+                        <div class="result-title">${index + 1}. ${result.title}</div>
+                        <div class="result-meta">${result.source} | 신뢰도: ${result.reliability} | ${result.date}</div>
+                        <div class="result-summary">${result.summary}</div>
+                        <div class="result-tags">태그: ${result.tags.join(', ')}</div>
+                    </div>
+                `).join('')}
+            `;
+        }
+
+        function showHelp() {
+            alert(`📚 토론 근거자료 검색 도구 사용법
+
+1. 검색하기
+   • 검색창에 주제나 키워드를 입력하세요
+   • 구체적인 키워드일수록 정확한 결과를 얻을 수 있습니다
+
+2. 필터 활용
+   • 자료 유형: 뉴스, 학술자료, 정부발표 등으로 분류
+   • 기간: 최신 자료 또는 특정 기간 자료 선택
+   • 관점: 찬성/반대/중립 관점별 자료 검색
+   • 신뢰도: 검증된 자료만 선별하여 검색
+
+3. 검색 결과 활용
+   • 자료 보기: 원본 자료 확인
+   • 저장: 나의 근거자료함에 저장
+   • 인용형식: 올바른 인용 형식 복사
+
+4. 내보내기 및 인쇄
+   • 검색 결과를 워드 문서로 저장
+   • 인쇄하여 오프라인에서 활용
+
+💡 팁:
+- 신뢰할 수 있는 자료를 우선적으로 활용하세요
+- 다양한 관점의 자료를 균형있게 수집하세요
+- 최신 자료와 통계를 함께 활용하면 더 설득력 있는 토론이 가능합니다`);
+        }
+
+        // 엔터키로 검색 실행
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchEvidence();
+            }
+        });
+    </script>
+</body>
+</html>

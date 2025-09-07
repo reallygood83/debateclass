@@ -1,0 +1,2716 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📚 토론 근거자료 검색 도구 - AI 기반 자료 검색 시스템</title>
+    
+    <!-- External Libraries -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    
+    <style>
+        /* ===== 기본 설정 ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* 메인 컬러 시스템 - 원본 프로그램 기준 */
+            --primary-color: #059669;
+            --primary-hover: #047857;
+            --primary-light: #10b981;
+            --primary-dark: #065f46;
+            --secondary-color: #64748b;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --info-color: #3b82f6;
+            
+            /* 배경 및 표면 색상 */
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --glass-bg: rgba(255, 255, 255, 0.8);
+            --overlay-bg: rgba(0, 0, 0, 0.7);
+            
+            /* 텍스트 색상 */
+            --text-color: #1f2937;
+            --text-secondary: #64748b;
+            --text-light: #94a3b8;
+            --text-white: #ffffff;
+            
+            /* 테두리 및 구분선 */
+            --border-color: #e2e8f0;
+            --border-light: #f1f5f9;
+            --border-dark: #cbd5e1;
+            
+            /* 그림자 시스템 */
+            --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --shadow-xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            --shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+            
+            /* 그래디언트 */
+            --gradient-primary: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+            --gradient-bg: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            --gradient-card: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+            
+            /* 애니메이션 */
+            --transition-fast: 0.15s ease-out;
+            --transition-normal: 0.3s ease;
+            --transition-slow: 0.5s ease;
+            
+            /* 간격 및 크기 */
+            --space-xs: 0.25rem;
+            --space-sm: 0.5rem;
+            --space-md: 1rem;
+            --space-lg: 1.5rem;
+            --space-xl: 2rem;
+            --space-2xl: 3rem;
+            
+            /* 반응형 브레이크포인트 */
+            --breakpoint-sm: 640px;
+            --breakpoint-md: 768px;
+            --breakpoint-lg: 1024px;
+            --breakpoint-xl: 1280px;
+        }
+
+        /* ===== 기본 스타일 ===== */
+        body {
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            background: var(--gradient-bg);
+            color: var(--text-color);
+            line-height: 1.6;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ===== 헤더 섹션 ===== */
+        .header {
+            text-align: center;
+            padding: var(--space-2xl) var(--space-lg);
+            background: var(--gradient-primary);
+            color: var(--text-white);
+            box-shadow: var(--shadow-lg);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .header h1 {
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 800;
+            margin-bottom: var(--space-md);
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-md);
+            flex-wrap: wrap;
+        }
+
+        .header .subtitle {
+            font-size: clamp(1rem, 2vw, 1.25rem);
+            font-weight: 400;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+            margin-bottom: var(--space-lg);
+        }
+
+        .header .features {
+            display: flex;
+            justify-content: center;
+            gap: var(--space-xl);
+            flex-wrap: wrap;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header .feature-badge {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 25px;
+            padding: var(--space-sm) var(--space-lg);
+            font-size: 0.9rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+        }
+
+        /* ===== 컨테이너 ===== */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: var(--space-xl) var(--space-lg);
+        }
+
+        /* ===== 카드 시스템 ===== */
+        .card {
+            background: var(--gradient-card);
+            border-radius: 20px;
+            padding: var(--space-2xl);
+            margin-bottom: var(--space-xl);
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            position: relative;
+            overflow: hidden;
+            transition: var(--transition-normal);
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-primary);
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: between;
+            margin-bottom: var(--space-xl);
+            flex-wrap: wrap;
+            gap: var(--space-md);
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+        }
+
+        .card-subtitle {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-top: var(--space-xs);
+        }
+
+        /* ===== 검색 섹션 ===== */
+        .search-container {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: var(--space-lg);
+            box-shadow: var(--shadow-inner);
+            border: 2px solid var(--border-light);
+        }
+
+        .search-section {
+            display: grid;
+            grid-template-columns: 1fr auto auto;
+            gap: var(--space-md);
+            margin-bottom: var(--space-lg);
+            align-items: end;
+        }
+
+        .search-input-group {
+            position: relative;
+        }
+
+        .search-input-group label {
+            display: block;
+            font-weight: 600;
+            color: var(--text-color);
+            margin-bottom: var(--space-sm);
+            font-size: 0.95rem;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 15px 20px 15px 50px;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-family: inherit;
+            transition: var(--transition-normal);
+            background: var(--card-bg);
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
+        }
+
+        .search-input-icon {
+            position: absolute;
+            left: 16px;
+            bottom: 16px;
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-sm);
+            padding: 15px 24px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: var(--transition-normal);
+            text-decoration: none;
+            white-space: nowrap;
+            user-select: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn.primary {
+            background: var(--gradient-primary);
+            color: var(--text-white);
+            box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+        }
+
+        .btn.primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(5, 150, 105, 0.4);
+        }
+
+        .btn.secondary {
+            background: var(--card-bg);
+            color: var(--text-color);
+            border: 2px solid var(--border-color);
+        }
+
+        .btn.secondary:hover {
+            background: var(--border-light);
+            border-color: var(--primary-color);
+        }
+
+        .btn.ai-powered {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            position: relative;
+        }
+
+        .btn.ai-powered::after {
+            content: '✨';
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            animation: sparkle 2s ease-in-out infinite;
+        }
+
+        /* ===== 필터 시스템 ===== */
+        .filters-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: var(--space-lg);
+            margin-bottom: var(--space-lg);
+        }
+
+        .filter-group {
+            background: var(--card-bg);
+            padding: var(--space-lg);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        .filter-label {
+            display: block;
+            font-weight: 600;
+            color: var(--text-color);
+            margin-bottom: var(--space-sm);
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+        }
+
+        .filter-select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--card-bg);
+            font-size: 0.95rem;
+            font-family: inherit;
+            cursor: pointer;
+            transition: var(--transition-normal);
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .advanced-filters {
+            background: var(--border-light);
+            border-radius: 12px;
+            padding: var(--space-lg);
+            margin-top: var(--space-md);
+            display: none;
+        }
+
+        .advanced-filters.active {
+            display: block;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        /* ===== 통계 섹션 ===== */
+        .stats-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--space-lg);
+            margin-bottom: var(--space-xl);
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            padding: var(--space-lg);
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            transition: var(--transition-normal);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--gradient-primary);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .stat-icon {
+            font-size: 2rem;
+            margin-bottom: var(--space-sm);
+            color: var(--primary-color);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--primary-color);
+            margin-bottom: var(--space-xs);
+            display: block;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        /* ===== 결과 섹션 ===== */
+        .results-section {
+            min-height: 400px;
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-lg);
+            flex-wrap: wrap;
+            gap: var(--space-md);
+        }
+
+        .results-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .sort-controls {
+            display: flex;
+            gap: var(--space-sm);
+            align-items: center;
+        }
+
+        .sort-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .sort-select {
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background: var(--card-bg);
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        .result-item {
+            background: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 16px;
+            padding: var(--space-xl);
+            margin-bottom: var(--space-lg);
+            transition: var(--transition-normal);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .result-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--gradient-primary);
+            transform: scaleY(0);
+            transition: transform 0.3s ease;
+            transform-origin: bottom;
+        }
+
+        .result-item:hover::before {
+            transform: scaleY(1);
+            transform-origin: top;
+        }
+
+        .result-item:hover {
+            border-color: var(--primary-color);
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-2px);
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: var(--space-lg);
+            flex-wrap: wrap;
+            gap: var(--space-md);
+        }
+
+        .result-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-color);
+            margin-bottom: var(--space-sm);
+            line-height: 1.4;
+        }
+
+        .result-title:hover {
+            color: var(--primary-color);
+            cursor: pointer;
+        }
+
+        .result-source {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+        }
+
+        .source-badge {
+            font-size: 0.85rem;
+            color: var(--text-white);
+            background: var(--primary-color);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+
+        .reliability-badge {
+            font-size: 0.8rem;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-weight: 500;
+        }
+
+        .reliability-badge.high {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .reliability-badge.medium {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .reliability-badge.low {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .result-summary {
+            color: var(--text-color);
+            line-height: 1.7;
+            margin-bottom: var(--space-lg);
+            font-size: 1rem;
+        }
+
+        .result-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--space-md);
+            align-items: center;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: var(--space-lg);
+            padding: var(--space-md);
+            background: var(--border-light);
+            border-radius: 8px;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-xs);
+        }
+
+        .result-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--space-sm);
+            margin-left: auto;
+        }
+
+        .result-tag {
+            background: #e0f2fe;
+            color: #0369a1;
+            padding: 4px 10px;
+            border-radius: 16px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .result-actions {
+            display: flex;
+            gap: var(--space-sm);
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-xs);
+            padding: 10px 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            font-family: inherit;
+            transition: var(--transition-normal);
+            text-decoration: none;
+        }
+
+        .action-btn.primary {
+            background: var(--primary-color);
+            color: var(--text-white);
+        }
+
+        .action-btn.primary:hover {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+        }
+
+        .action-btn.secondary {
+            background: var(--border-light);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+        }
+
+        .action-btn.secondary:hover {
+            background: var(--card-bg);
+            border-color: var(--primary-color);
+        }
+
+        .action-btn.outline {
+            background: transparent;
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+        }
+
+        .action-btn.outline:hover {
+            background: var(--primary-color);
+            color: var(--text-white);
+        }
+
+        /* ===== 상태 표시 ===== */
+        .loading-state, .empty-state, .error-state {
+            text-align: center;
+            padding: var(--space-2xl);
+            color: var(--text-secondary);
+        }
+
+        .state-icon {
+            font-size: 4rem;
+            margin-bottom: var(--space-lg);
+            opacity: 0.7;
+        }
+
+        .state-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: var(--space-md);
+            color: var(--text-color);
+        }
+
+        .state-description {
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
+        /* ===== AI 분석 패널 ===== */
+        .ai-analysis-panel {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: var(--text-white);
+            border-radius: 16px;
+            padding: var(--space-xl);
+            margin-bottom: var(--space-xl);
+            position: relative;
+            overflow: hidden;
+            display: none;
+        }
+
+        .ai-analysis-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .ai-analysis-header {
+            display: flex;
+            align-items: center;
+            justify-content: between;
+            margin-bottom: var(--space-lg);
+            position: relative;
+            z-index: 1;
+        }
+
+        .ai-analysis-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+        }
+
+        .ai-insights {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: var(--space-lg);
+            position: relative;
+            z-index: 1;
+        }
+
+        .ai-insight-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: var(--space-lg);
+        }
+
+        .insight-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: var(--space-sm);
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+        }
+
+        .insight-content {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            opacity: 0.9;
+        }
+
+        /* ===== 차트 컨테이너 ===== */
+        .chart-container {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: var(--space-lg);
+            margin: var(--space-lg) 0;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+        }
+
+        .chart-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-color);
+            margin-bottom: var(--space-lg);
+            text-align: center;
+        }
+
+        .chart-wrapper {
+            position: relative;
+            height: 300px;
+        }
+
+        /* ===== 내보내기 섹션 ===== */
+        .export-section {
+            background: var(--border-light);
+            border-radius: 12px;
+            padding: var(--space-lg);
+            margin-top: var(--space-xl);
+            border: 2px dashed var(--border-color);
+            text-align: center;
+            display: none;
+        }
+
+        .export-section.active {
+            display: block;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        .export-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-color);
+            margin-bottom: var(--space-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-sm);
+        }
+
+        .export-actions {
+            display: flex;
+            justify-content: center;
+            gap: var(--space-md);
+            flex-wrap: wrap;
+        }
+
+        /* ===== 플로팅 요소들 ===== */
+        .floating-help {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            background: var(--gradient-primary);
+            color: var(--text-white);
+            border: none;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: var(--shadow-lg);
+            z-index: 1000;
+            transition: var(--transition-normal);
+        }
+
+        .floating-help:hover {
+            transform: scale(1.1);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .status-message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: var(--space-md) var(--space-lg);
+            border-radius: 12px;
+            color: var(--text-white);
+            font-weight: 600;
+            z-index: 1000;
+            transform: translateX(400px);
+            transition: var(--transition-normal);
+            box-shadow: var(--shadow-lg);
+            max-width: 300px;
+        }
+
+        .status-message.show {
+            transform: translateX(0);
+        }
+
+        .status-message.success {
+            background: var(--success-color);
+        }
+
+        .status-message.error {
+            background: var(--danger-color);
+        }
+
+        .status-message.info {
+            background: var(--info-color);
+        }
+
+        .status-message.warning {
+            background: var(--warning-color);
+        }
+
+        /* ===== 로딩 오버레이 ===== */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--overlay-bg);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        }
+
+        .loading-overlay.active {
+            display: flex;
+        }
+
+        .loading-content {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: var(--space-2xl);
+            text-align: center;
+            box-shadow: var(--shadow-xl);
+            max-width: 400px;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid var(--border-color);
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto var(--space-lg);
+        }
+
+        .loading-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-color);
+            margin-bottom: var(--space-sm);
+        }
+
+        .loading-description {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        /* ===== 애니메이션 ===== */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+
+        @keyframes sparkle {
+            0%, 100% { transform: translateY(-50%) scale(1) rotate(0deg); }
+            50% { transform: translateY(-50%) scale(1.2) rotate(180deg); }
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes countUp {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); color: var(--success-color); }
+            100% { transform: scale(1); }
+        }
+
+        .count-animated {
+            animation: countUp 0.6s ease-out;
+        }
+
+        /* ===== 반응형 디자인 ===== */
+        @media (max-width: 1024px) {
+            .container {
+                padding: var(--space-lg) var(--space-md);
+            }
+
+            .search-section {
+                grid-template-columns: 1fr;
+                gap: var(--space-md);
+            }
+
+            .filters-section {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            }
+
+            .ai-insights {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: var(--space-xl) var(--space-md);
+            }
+
+            .header h1 {
+                font-size: 2rem;
+                flex-direction: column;
+                gap: var(--space-sm);
+            }
+
+            .header .features {
+                flex-direction: column;
+                gap: var(--space-md);
+            }
+
+            .card {
+                padding: var(--space-lg);
+            }
+
+            .filters-section {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-section {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .result-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .result-actions {
+                width: 100%;
+            }
+
+            .action-btn {
+                flex: 1;
+                justify-content: center;
+            }
+
+            .export-actions {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .floating-help {
+                bottom: 15px;
+                right: 15px;
+                width: 50px;
+                height: 50px;
+                font-size: 1.2rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: var(--space-md);
+            }
+
+            .stats-section {
+                grid-template-columns: 1fr;
+            }
+
+            .search-input {
+                padding-left: 16px;
+                font-size: 1rem;
+            }
+
+            .search-input-icon {
+                display: none;
+            }
+        }
+
+        /* ===== 접근성 개선 ===== */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        @media (prefers-color-scheme: dark) {
+            /* 다크 모드 지원을 위한 추가 스타일 (선택적) */
+        }
+
+        /* ===== 유틸리티 클래스 ===== */
+        .hidden {
+            display: none !important;
+        }
+
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .mt-auto {
+            margin-top: auto;
+        }
+
+        .mb-0 {
+            margin-bottom: 0 !important;
+        }
+
+        /* ===== AI 진행률 팝업 스타일 ===== */
+        .ai-progress-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            animation: aiProgressSlideIn 0.3s ease-out;
+        }
+
+        .ai-progress-modal {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: var(--space-2xl);
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            box-shadow: var(--shadow-xl);
+            position: relative;
+        }
+
+        .ai-progress-icon {
+            font-size: 4rem;
+            margin-bottom: var(--space-lg);
+            animation: float 2s ease-in-out infinite;
+        }
+
+        .ai-progress-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-color);
+            margin-bottom: var(--space-sm);
+        }
+
+        .ai-progress-subtitle {
+            color: var(--text-secondary);
+            margin-bottom: var(--space-xl);
+            font-size: 0.95rem;
+        }
+
+        .ai-progress-bar-container {
+            background: var(--border-color);
+            height: 8px;
+            border-radius: 4px;
+            margin-bottom: var(--space-xl);
+            overflow: hidden;
+        }
+
+        .ai-progress-bar {
+            height: 100%;
+            background: var(--gradient-primary);
+            border-radius: 4px;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .ai-progress-steps {
+            text-align: left;
+        }
+
+        .ai-progress-step {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            padding: var(--space-sm) 0;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            opacity: 0.5;
+            transition: all 0.3s ease;
+        }
+
+        .ai-progress-step.active {
+            opacity: 1;
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .ai-progress-step.completed {
+            opacity: 0.8;
+            color: var(--success-color);
+        }
+
+        .ai-progress-step-icon {
+            font-size: 1.2rem;
+            width: 24px;
+            text-align: center;
+        }
+
+        @keyframes aiProgressSlideIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 상태 메시지 -->
+    <div id="status-message" class="status-message"></div>
+    
+    <!-- 로딩 오버레이 -->
+    <div id="loading-overlay" class="loading-overlay">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <div class="loading-title" id="loading-title">AI 분석 중...</div>
+            <div class="loading-description" id="loading-description">근거자료를 검색하고 있습니다</div>
+        </div>
+    </div>
+
+    <!-- 헤더 -->
+    <div class="header">
+        <h1>
+            <span class="material-symbols-outlined" style="font-size: inherit;">search</span>
+            토론 근거자료 검색 도구
+        </h1>
+        <p class="subtitle">AI 기반 신뢰성 검증으로 더욱 정확한 근거자료를 찾아보세요</p>
+        <div class="features">
+            <div class="feature-badge">
+                <span class="material-symbols-outlined">auto_awesome</span>
+                AI 분석
+            </div>
+            <div class="feature-badge">
+                <span class="material-symbols-outlined">verified</span>
+                신뢰도 검증
+            </div>
+            <div class="feature-badge">
+                <span class="material-symbols-outlined">trending_up</span>
+                실시간 트렌드
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- 검색 섹션 -->
+        <div class="card">
+            <div class="card-header">
+                <div>
+                    <h2 class="card-title">
+                        <span class="material-symbols-outlined">manage_search</span>
+                        지능형 자료 검색
+                    </h2>
+                    <p class="card-subtitle">키워드를 입력하고 AI가 추천하는 신뢰할 수 있는 근거자료를 확인하세요</p>
+                </div>
+            </div>
+
+            <div class="search-container">
+                <div class="search-section">
+                    <div class="search-input-group">
+                        <label for="searchInput">
+                            <span class="material-symbols-outlined">search</span>
+                            검색 키워드
+                        </label>
+                        <input type="text" 
+                               class="search-input" 
+                               id="searchInput" 
+                               placeholder="토론 주제나 키워드를 입력하세요 (예: 플라스틱 환경오염, AI 윤리, 기본소득)"
+                               autocomplete="off">
+                        <span class="search-input-icon material-symbols-outlined">search</span>
+                    </div>
+                    <button class="btn primary" onclick="searchEvidence()">
+                        <span class="material-symbols-outlined">search</span>
+                        검색하기
+                    </button>
+                    <button class="btn ai-powered" onclick="aiAnalyzeKeyword()">
+                        <span class="material-symbols-outlined">psychology</span>
+                        AI 분석
+                    </button>
+                </div>
+
+                <div class="filters-section">
+                    <div class="filter-group">
+                        <label class="filter-label">
+                            <span class="material-symbols-outlined">category</span>
+                            자료 유형
+                        </label>
+                        <select class="filter-select" id="sourceType">
+                            <option value="all">전체 유형</option>
+                            <option value="news">뉴스 기사</option>
+                            <option value="academic">학술 자료</option>
+                            <option value="government">정부 발표</option>
+                            <option value="statistics">통계 자료</option>
+                            <option value="research">연구 보고서</option>
+                            <option value="international">국제기구 자료</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label class="filter-label">
+                            <span class="material-symbols-outlined">schedule</span>
+                            발행 기간
+                        </label>
+                        <select class="filter-select" id="timePeriod">
+                            <option value="all">전체 기간</option>
+                            <option value="recent">최근 1개월</option>
+                            <option value="quarter">최근 3개월</option>
+                            <option value="year">최근 1년</option>
+                            <option value="custom">직접 설정</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label class="filter-label">
+                            <span class="material-symbols-outlined">balance</span>
+                            관점 분석
+                        </label>
+                        <select class="filter-select" id="perspective">
+                            <option value="balanced">균형잡힌 시각</option>
+                            <option value="pro">찬성 관점</option>
+                            <option value="con">반대 관점</option>
+                            <option value="neutral">중립적 분석</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label class="filter-label">
+                            <span class="material-symbols-outlined">verified</span>
+                            신뢰도 수준
+                        </label>
+                        <select class="filter-select" id="reliability">
+                            <option value="all">전체</option>
+                            <option value="high">높음 (90% 이상)</option>
+                            <option value="verified">검증된 자료만</option>
+                            <option value="premium">프리미엄 소스</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="advanced-filters" id="advancedFilters">
+                    <div class="filters-section">
+                        <div class="filter-group">
+                            <label class="filter-label">언어</label>
+                            <select class="filter-select" id="language">
+                                <option value="ko">한국어</option>
+                                <option value="en">영어</option>
+                                <option value="all">전체</option>
+                            </select>
+                        </div>
+                        
+                        <div class="filter-group">
+                            <label class="filter-label">정렬 기준</label>
+                            <select class="filter-select" id="sortBy">
+                                <option value="relevance">관련성</option>
+                                <option value="date">최신순</option>
+                                <option value="reliability">신뢰도</option>
+                                <option value="citations">인용횟수</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center">
+                    <button class="btn secondary" onclick="toggleAdvancedFilters()">
+                        <span class="material-symbols-outlined">tune</span>
+                        고급 필터
+                    </button>
+                    <button class="btn secondary" onclick="resetFilters()">
+                        <span class="material-symbols-outlined">refresh</span>
+                        초기화
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI 분석 패널 -->
+        <div class="ai-analysis-panel" id="aiAnalysisPanel">
+            <div class="ai-analysis-header">
+                <div class="ai-analysis-title">
+                    <span class="material-symbols-outlined">psychology</span>
+                    AI 키워드 분석 결과
+                </div>
+                <button class="btn secondary" onclick="hideAIAnalysis()" style="padding: 8px 12px;">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            
+            <div class="ai-insights" id="aiInsights">
+                <!-- AI 분석 결과가 여기에 표시됩니다 -->
+            </div>
+        </div>
+
+        <!-- 검색 통계 -->
+        <div class="card">
+            <div class="stats-section" id="statsSection" style="display: none;">
+                <div class="stat-card">
+                    <div class="stat-icon">📄</div>
+                    <span class="stat-number" id="totalResults">0</span>
+                    <div class="stat-label">총 검색 결과</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">📰</div>
+                    <span class="stat-number" id="newsCount">0</span>
+                    <div class="stat-label">뉴스 기사</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🎓</div>
+                    <span class="stat-number" id="academicCount">0</span>
+                    <div class="stat-label">학술 자료</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🏛️</div>
+                    <span class="stat-number" id="governmentCount">0</span>
+                    <div class="stat-label">정부 자료</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">📊</div>
+                    <span class="stat-number" id="reliabilityAvg">0</span>
+                    <div class="stat-label">평균 신뢰도</div>
+                </div>
+            </div>
+
+            <!-- 차트 섹션 -->
+            <div class="chart-container" id="chartContainer" style="display: none;">
+                <h3 class="chart-title">자료 유형별 분포</h3>
+                <div class="chart-wrapper">
+                    <canvas id="distributionChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- 검색 결과 -->
+        <div class="card">
+            <div class="card-header" id="resultsHeader" style="display: none;">
+                <div>
+                    <h2 class="card-title">
+                        <span class="material-symbols-outlined">list_alt</span>
+                        검색 결과
+                    </h2>
+                    <p class="card-subtitle" id="resultsSubtitle">검색된 근거자료 목록</p>
+                </div>
+                <div class="sort-controls">
+                    <span class="sort-label">정렬:</span>
+                    <select class="sort-select" id="sortResults" onchange="sortResults()">
+                        <option value="relevance">관련성</option>
+                        <option value="date">최신순</option>
+                        <option value="reliability">신뢰도</option>
+                        <option value="title">제목순</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="results-section" id="resultsSection">
+                <div class="empty-state" id="emptyState">
+                    <div class="state-icon">🔍</div>
+                    <h3 class="state-title">검색을 시작해보세요</h3>
+                    <p class="state-description">
+                        토론 주제나 키워드를 입력하여 신뢰할 수 있는 근거자료를 찾아보세요.<br>
+                        AI 분석 기능으로 더욱 정확한 자료를 추천받을 수 있습니다.
+                    </p>
+                </div>
+            </div>
+
+            <!-- 내보내기 섹션 -->
+            <div class="export-section" id="exportSection">
+                <h3 class="export-title">
+                    <span class="material-symbols-outlined">download</span>
+                    검색 결과 내보내기
+                </h3>
+                <div class="export-actions">
+                    <button class="btn primary" onclick="exportResults('word')">
+                        <span class="material-symbols-outlined">description</span>
+                        워드로 내보내기
+                    </button>
+                    <button class="btn primary" onclick="exportResults('pdf')">
+                        <span class="material-symbols-outlined">picture_as_pdf</span>
+                        PDF로 내보내기
+                    </button>
+                    <button class="btn secondary" onclick="printResults()">
+                        <span class="material-symbols-outlined">print</span>
+                        인쇄하기
+                    </button>
+                    <button class="btn secondary" onclick="shareResults()">
+                        <span class="material-symbols-outlined">share</span>
+                        공유하기
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 플로팅 도움말 버튼 -->
+    <button class="floating-help" onclick="showHelp()" title="사용자 매뉴얼 및 도움말">
+        <span class="material-symbols-outlined">help</span>
+    </button>
+
+    <script>
+        // ===== 전역 변수 =====
+        let searchResults = [];
+        let currentSearchTerm = '';
+        let currentFilters = {};
+        let chartInstance = null;
+
+        // ===== 초기화 =====
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeEventListeners();
+            loadSampleData();
+        });
+
+        function initializeEventListeners() {
+            // 엔터키로 검색 실행
+            document.getElementById('searchInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    searchEvidence();
+                }
+            });
+
+            // 검색어 자동완성
+            document.getElementById('searchInput').addEventListener('input', handleSearchInputChange);
+            
+            // 필터 변경 감지
+            const filterElements = ['sourceType', 'timePeriod', 'perspective', 'reliability'];
+            filterElements.forEach(id => {
+                document.getElementById(id).addEventListener('change', onFilterChange);
+            });
+        }
+
+        function loadSampleData() {
+            // 샘플 데이터 로드 (실제 구현시에는 제거)
+            console.log('📚 토론 근거자료 검색 도구 초기화 완료');
+        }
+
+        // ===== 검색 기능 =====
+        async function searchEvidence() {
+            const searchTerm = document.getElementById('searchInput').value.trim();
+            
+            if (!searchTerm) {
+                showStatus('검색할 키워드를 입력해주세요.', 'warning');
+                document.getElementById('searchInput').focus();
+                return;
+            }
+
+            currentSearchTerm = searchTerm;
+            updateCurrentFilters();
+            
+            showLoading('근거자료 검색 중...', 'AI가 신뢰할 수 있는 자료를 찾고 있습니다');
+            
+            try {
+                // AI 기반 검색 시뮬레이션
+                const results = await performAISearch(searchTerm, currentFilters);
+                displayResults(results);
+                updateStats(results);
+                showStats();
+                showExportSection();
+                showStatus(`${results.length}개의 근거자료를 찾았습니다!`, 'success');
+            } catch (error) {
+                console.error('검색 오류:', error);
+                showErrorState('검색 중 오류가 발생했습니다. 다시 시도해주세요.');
+                showStatus('검색 중 오류가 발생했습니다.', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        async function performAISearch(searchTerm, filters) {
+            // AI 검색 시뮬레이션 (실제로는 백엔드 API 호출)
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    const mockResults = generateAdvancedMockResults(searchTerm, filters);
+                    resolve(mockResults);
+                }, 2000);
+            });
+        }
+
+        function generateAdvancedMockResults(searchTerm, filters) {
+            const baseResults = [
+                {
+                    id: 1,
+                    title: `${searchTerm} 정책 현황과 과제: 2024 국정감사 자료집`,
+                    source: '국정감사 자료',
+                    type: 'government',
+                    summary: `${searchTerm} 관련 정부 정책의 현황과 향후 과제를 종합적으로 분석한 국정감사 자료입니다. 구체적인 예산 현황, 성과 지표, 개선 방안 등이 상세히 기록되어 있어 토론의 팩트 체크에 유용합니다.`,
+                    reliability: 95,
+                    reliabilityLevel: 'high',
+                    date: '2024-11-15',
+                    dateFormatted: '2024년 11월 15일',
+                    tags: ['정부정책', '국정감사', '공식자료', '예산분석'],
+                    url: 'https://example.gov.kr/audit-2024',
+                    citations: 127,
+                    readTime: '15분',
+                    pageCount: 45,
+                    language: 'ko',
+                    author: '국정감사위원회',
+                    institution: '국회',
+                    abstract: `본 자료는 ${searchTerm} 정책의 전반적인 현황을 점검하고 향후 발전 방향을 제시합니다.`
+                },
+                {
+                    id: 2,
+                    title: `${searchTerm} 실태조사 및 정책 개선방안 연구`,
+                    source: '한국정책연구원',
+                    type: 'research',
+                    summary: `전국 규모의 실태조사를 바탕으로 ${searchTerm}의 현황을 객관적으로 분석하고 정책 개선방안을 제시한 연구보고서입니다. 정량적 데이터와 질적 분석이 균형있게 제시되어 있어 근거자료로 활용하기에 적합합니다.`,
+                    reliability: 88,
+                    reliabilityLevel: 'high',
+                    date: '2024-10-20',
+                    dateFormatted: '2024년 10월 20일',
+                    tags: ['실태조사', '정책연구', '통계분석', '개선방안'],
+                    url: 'https://kpi.re.kr/research-2024',
+                    citations: 94,
+                    readTime: '25분',
+                    pageCount: 78,
+                    language: 'ko',
+                    author: '김정민 박사',
+                    institution: '한국정책연구원',
+                    abstract: `${searchTerm}에 대한 종합적 실태조사를 통해 현 상황을 진단하고 개선방안을 도출합니다.`
+                },
+                {
+                    id: 3,
+                    title: `"${searchTerm}" 전문가 좌담회: 쟁점과 전망`,
+                    source: '한국언론학회보',
+                    type: 'academic',
+                    summary: `${searchTerm} 분야의 국내외 전문가들이 참여한 좌담회 내용을 정리한 학술 자료입니다. 다양한 관점에서의 심도있는 논의와 향후 전망에 대한 전문가 의견을 확인할 수 있습니다.`,
+                    reliability: 82,
+                    reliabilityLevel: 'high',
+                    date: '2024-12-01',
+                    dateFormatted: '2024년 12월 1일',
+                    tags: ['전문가의견', '학술자료', '좌담회', '전망분석'],
+                    url: 'https://kprs.or.kr/journal-2024-12',
+                    citations: 56,
+                    readTime: '12분',
+                    pageCount: 28,
+                    language: 'ko',
+                    author: '편집위원회',
+                    institution: '한국언론학회',
+                    abstract: `${searchTerm} 관련 주요 쟁점들을 전문가 관점에서 분석하고 미래 전망을 제시합니다.`
+                },
+                {
+                    id: 4,
+                    title: `Global Trends in ${searchTerm}: International Comparative Study`,
+                    source: 'International Policy Journal',
+                    type: 'international',
+                    summary: `${searchTerm} 관련 주요 선진국의 정책과 성과를 비교 분석한 국제적 연구자료입니다. 각국의 모범사례와 시사점을 도출하여 우리나라 상황에 적용 가능한 방안을 모색할 수 있습니다.`,
+                    reliability: 91,
+                    reliabilityLevel: 'high',
+                    date: '2024-09-30',
+                    dateFormatted: '2024년 9월 30일',
+                    tags: ['국제비교', '해외사례', '모범사례', '정책시사점'],
+                    url: 'https://ipj.org/study-2024-09',
+                    citations: 203,
+                    readTime: '30분',
+                    pageCount: 95,
+                    language: 'en',
+                    author: 'Dr. Sarah Johnson et al.',
+                    institution: 'International Policy Institute',
+                    abstract: `Comprehensive analysis of ${searchTerm} policies across major developed countries with policy implications.`
+                },
+                {
+                    id: 5,
+                    title: `${searchTerm} 통계청 공식 통계 및 동향 분석`,
+                    source: '국가통계포털(KOSIS)',
+                    type: 'statistics',
+                    summary: `통계청에서 발표한 ${searchTerm} 관련 최신 공식 통계자료입니다. 연도별 변화 추이, 지역별 현황, 인구학적 특성별 분석 등 다각도의 통계 정보를 제공합니다.`,
+                    reliability: 98,
+                    reliabilityLevel: 'high',
+                    date: '2024-12-10',
+                    dateFormatted: '2024년 12월 10일',
+                    tags: ['공식통계', 'KOSIS', '동향분석', '지역별현황'],
+                    url: 'https://kosis.kr/statHtml/2024',
+                    citations: 389,
+                    readTime: '8분',
+                    pageCount: 15,
+                    language: 'ko',
+                    author: '통계청',
+                    institution: '통계청',
+                    abstract: `${searchTerm}에 대한 국가 공식 통계와 최신 동향을 종합적으로 제시합니다.`
+                },
+                {
+                    id: 6,
+                    title: `${searchTerm} 시민사회 인식조사 보고서`,
+                    source: '시민사회연구소',
+                    type: 'research',
+                    summary: `${searchTerm}에 대한 시민들의 인식과 의견을 조사한 여론조사 보고서입니다. 연령별, 지역별, 직업별 인식 차이를 분석하여 사회적 합의점 도출을 위한 시사점을 제공합니다.`,
+                    reliability: 76,
+                    reliabilityLevel: 'medium',
+                    date: '2024-11-28',
+                    dateFormatted: '2024년 11월 28일',
+                    tags: ['여론조사', '시민인식', '사회조사', '의견수렴'],
+                    url: 'https://civilsociety.kr/survey-2024',
+                    citations: 42,
+                    readTime: '18분',
+                    pageCount: 52,
+                    language: 'ko',
+                    author: '이민수 연구위원',
+                    institution: '시민사회연구소',
+                    abstract: `${searchTerm}에 대한 다양한 시민 계층의 인식과 태도를 조사하고 분석합니다.`
+                }
+            ];
+
+            // 필터링 적용
+            let filteredResults = baseResults;
+            
+            if (filters.sourceType !== 'all') {
+                filteredResults = filteredResults.filter(result => result.type === filters.sourceType);
+            }
+
+            if (filters.reliability === 'high' || filters.reliability === 'verified') {
+                filteredResults = filteredResults.filter(result => result.reliability >= 85);
+            } else if (filters.reliability === 'premium') {
+                filteredResults = filteredResults.filter(result => result.reliability >= 90);
+            }
+
+            if (filters.language && filters.language !== 'all') {
+                filteredResults = filteredResults.filter(result => result.language === filters.language);
+            }
+
+            // 정렬 적용
+            if (filters.sortBy) {
+                filteredResults = sortResultsData(filteredResults, filters.sortBy);
+            }
+
+            return filteredResults;
+        }
+
+        // ===== AI 키워드 분석 =====
+        async function aiAnalyzeKeyword() {
+            const searchTerm = document.getElementById('searchInput').value.trim();
+            
+            if (!searchTerm) {
+                showStatus('분석할 키워드를 입력해주세요.', 'warning');
+                document.getElementById('searchInput').focus();
+                return;
+            }
+
+            showAIProgress('evidence-search');
+            
+            try {
+                const analysis = await performAIAnalysis(searchTerm);
+                displayAIAnalysis(analysis);
+                showStatus('AI 키워드 분석이 완료되었습니다!', 'success');
+            } catch (error) {
+                console.error('AI 분석 오류:', error);
+                showStatus('AI 분석 중 오류가 발생했습니다.', 'error');
+            } finally {
+                hideAIProgress();
+            }
+        }
+
+        async function performAIAnalysis(keyword) {
+            // AI 분석 시뮬레이션
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    const analysis = {
+                        keyword: keyword,
+                        summary: `"${keyword}"는 현재 사회적으로 중요한 이슈로 다양한 관점에서 논의되고 있는 주제입니다.`,
+                        insights: [
+                            {
+                                title: '핵심 쟁점 분석',
+                                icon: '🎯',
+                                content: `${keyword}의 주요 쟁점은 정책적 효과성, 사회적 형평성, 경제적 파급효과 등으로 구분됩니다. 특히 찬반 논리가 첨예하게 대립하는 영역입니다.`
+                            },
+                            {
+                                title: '신뢰할 수 있는 자료 소스',
+                                icon: '🔍',
+                                content: '정부 공식 통계, 국정감사 자료, 학술 연구논문, 국제기구 보고서 등이 가장 신뢰도 높은 근거자료로 활용 가능합니다.'
+                            },
+                            {
+                                title: '토론 활용 팁',
+                                icon: '💡',
+                                content: '객관적 데이터와 전문가 의견을 균형있게 활용하고, 반대 논리에 대한 반박 근거도 함께 준비하는 것이 효과적입니다.'
+                            }
+                        ]
+                    };
+                    resolve(analysis);
+                }, 3000);
+            });
+        }
+
+        function displayAIAnalysis(analysis) {
+            const panel = document.getElementById('aiAnalysisPanel');
+            const insights = document.getElementById('aiInsights');
+            
+            insights.innerHTML = analysis.insights.map(insight => `
+                <div class="ai-insight-card">
+                    <div class="insight-title">
+                        <span>${insight.icon}</span>
+                        ${insight.title}
+                    </div>
+                    <div class="insight-content">${insight.content}</div>
+                </div>
+            `).join('');
+            
+            panel.style.display = 'block';
+            panel.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function hideAIAnalysis() {
+            document.getElementById('aiAnalysisPanel').style.display = 'none';
+        }
+
+        // ===== 결과 표시 =====
+        function displayResults(results) {
+            searchResults = results;
+            const resultsSection = document.getElementById('resultsSection');
+            const resultsHeader = document.getElementById('resultsHeader');
+            const resultsSubtitle = document.getElementById('resultsSubtitle');
+            
+            if (results.length === 0) {
+                showEmptyState();
+                return;
+            }
+
+            resultsHeader.style.display = 'flex';
+            resultsSubtitle.textContent = `"${currentSearchTerm}" 검색 결과 ${results.length}개`;
+            
+            const resultsHTML = results.map(result => createResultItemHTML(result)).join('');
+            resultsSection.innerHTML = resultsHTML;
+        }
+
+        function createResultItemHTML(result) {
+            const reliabilityColor = result.reliabilityLevel === 'high' ? 'high' : 
+                                   result.reliability >= 70 ? 'medium' : 'low';
+            
+            return `
+                <div class="result-item" data-id="${result.id}">
+                    <div class="result-header">
+                        <div>
+                            <div class="result-title" onclick="viewSource(${result.id})">${result.title}</div>
+                            <div class="result-source">
+                                <span class="source-badge">${result.source}</span>
+                                <span class="reliability-badge ${reliabilityColor}">신뢰도 ${result.reliability}%</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="result-summary">${result.summary}</div>
+                    
+                    <div class="result-meta">
+                        <div class="meta-item">
+                            <span class="material-symbols-outlined">schedule</span>
+                            ${result.dateFormatted}
+                        </div>
+                        <div class="meta-item">
+                            <span class="material-symbols-outlined">format_quote</span>
+                            인용 ${result.citations}회
+                        </div>
+                        <div class="meta-item">
+                            <span class="material-symbols-outlined">schedule</span>
+                            읽기 ${result.readTime}
+                        </div>
+                        <div class="meta-item">
+                            <span class="material-symbols-outlined">article</span>
+                            ${result.pageCount}페이지
+                        </div>
+                        <div class="result-tags">
+                            ${result.tags.map(tag => `<span class="result-tag">${tag}</span>`).join('')}
+                        </div>
+                    </div>
+                    
+                    <div class="result-actions">
+                        <button class="action-btn primary" onclick="viewSource(${result.id})">
+                            <span class="material-symbols-outlined">open_in_new</span>
+                            자료 보기
+                        </button>
+                        <button class="action-btn secondary" onclick="saveEvidence(${result.id})">
+                            <span class="material-symbols-outlined">bookmark</span>
+                            저장하기
+                        </button>
+                        <button class="action-btn outline" onclick="citationFormat(${result.id})">
+                            <span class="material-symbols-outlined">format_quote</span>
+                            인용형식
+                        </button>
+                        <button class="action-btn outline" onclick="analyzeCredibility(${result.id})">
+                            <span class="material-symbols-outlined">fact_check</span>
+                            신뢰도 분석
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function showEmptyState() {
+            const resultsSection = document.getElementById('resultsSection');
+            resultsSection.innerHTML = `
+                <div class="empty-state">
+                    <div class="state-icon">🔍</div>
+                    <h3 class="state-title">검색 결과가 없습니다</h3>
+                    <p class="state-description">
+                        다른 키워드로 다시 검색해보거나 필터 조건을 변경해주세요.<br>
+                        AI 키워드 분석을 통해 더 적절한 검색어를 찾아보세요.
+                    </p>
+                </div>
+            `;
+            
+            document.getElementById('resultsHeader').style.display = 'none';
+        }
+
+        function showErrorState(message) {
+            const resultsSection = document.getElementById('resultsSection');
+            resultsSection.innerHTML = `
+                <div class="error-state">
+                    <div class="state-icon">⚠️</div>
+                    <h3 class="state-title">오류가 발생했습니다</h3>
+                    <p class="state-description">${message}</p>
+                </div>
+            `;
+        }
+
+        // ===== 통계 및 차트 =====
+        function updateStats(results) {
+            const stats = calculateStats(results);
+            
+            document.getElementById('totalResults').textContent = stats.total;
+            document.getElementById('newsCount').textContent = stats.news;
+            document.getElementById('academicCount').textContent = stats.academic;
+            document.getElementById('governmentCount').textContent = stats.government;
+            document.getElementById('reliabilityAvg').textContent = stats.avgReliability + '%';
+            
+            // 숫자 카운트업 애니메이션
+            animateNumbers();
+            
+            // 차트 업데이트
+            updateChart(stats);
+        }
+
+        function calculateStats(results) {
+            const stats = {
+                total: results.length,
+                news: results.filter(r => r.type === 'news').length,
+                academic: results.filter(r => r.type === 'academic').length,
+                government: results.filter(r => r.type === 'government').length,
+                research: results.filter(r => r.type === 'research').length,
+                statistics: results.filter(r => r.type === 'statistics').length,
+                international: results.filter(r => r.type === 'international').length,
+                avgReliability: Math.round(results.reduce((sum, r) => sum + r.reliability, 0) / results.length)
+            };
+            
+            return stats;
+        }
+
+        function animateNumbers() {
+            const numbers = document.querySelectorAll('.stat-number');
+            numbers.forEach(num => {
+                num.classList.add('count-animated');
+                setTimeout(() => num.classList.remove('count-animated'), 600);
+            });
+        }
+
+        function updateChart(stats) {
+            const chartContainer = document.getElementById('chartContainer');
+            chartContainer.style.display = 'block';
+            
+            const ctx = document.getElementById('distributionChart').getContext('2d');
+            
+            if (chartInstance) {
+                chartInstance.destroy();
+            }
+            
+            chartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['뉴스', '학술자료', '정부자료', '연구보고서', '통계자료', '국제기구'],
+                    datasets: [{
+                        data: [
+                            stats.news, 
+                            stats.academic, 
+                            stats.government, 
+                            stats.research, 
+                            stats.statistics, 
+                            stats.international
+                        ],
+                        backgroundColor: [
+                            '#3b82f6',
+                            '#059669',
+                            '#f59e0b',
+                            '#ef4444',
+                            '#8b5cf6',
+                            '#06b6d4'
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                padding: 20,
+                                usePointStyle: true,
+                                font: {
+                                    family: 'Pretendard'
+                                }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            titleColor: '#ffffff',
+                            bodyColor: '#ffffff',
+                            borderColor: '#059669',
+                            borderWidth: 1
+                        }
+                    }
+                }
+            });
+        }
+
+        function showStats() {
+            document.getElementById('statsSection').style.display = 'grid';
+        }
+
+        // ===== 필터 관리 =====
+        function updateCurrentFilters() {
+            currentFilters = {
+                sourceType: document.getElementById('sourceType').value,
+                timePeriod: document.getElementById('timePeriod').value,
+                perspective: document.getElementById('perspective').value,
+                reliability: document.getElementById('reliability').value,
+                language: document.getElementById('language')?.value || 'ko',
+                sortBy: document.getElementById('sortBy')?.value || 'relevance'
+            };
+        }
+
+        function onFilterChange() {
+            if (searchResults.length > 0) {
+                // 실시간 필터링 적용
+                updateCurrentFilters();
+                const filteredResults = applyFilters(searchResults, currentFilters);
+                displayResults(filteredResults);
+                updateStats(filteredResults);
+            }
+        }
+
+        function applyFilters(results, filters) {
+            let filtered = [...results];
+            
+            if (filters.sourceType !== 'all') {
+                filtered = filtered.filter(result => result.type === filters.sourceType);
+            }
+            
+            if (filters.reliability === 'high') {
+                filtered = filtered.filter(result => result.reliability >= 85);
+            } else if (filters.reliability === 'verified') {
+                filtered = filtered.filter(result => result.reliability >= 90);
+            }
+            
+            return sortResultsData(filtered, filters.sortBy);
+        }
+
+        function toggleAdvancedFilters() {
+            const advanced = document.getElementById('advancedFilters');
+            advanced.classList.toggle('active');
+        }
+
+        function resetFilters() {
+            document.getElementById('sourceType').value = 'all';
+            document.getElementById('timePeriod').value = 'all';
+            document.getElementById('perspective').value = 'balanced';
+            document.getElementById('reliability').value = 'all';
+            
+            if (searchResults.length > 0) {
+                onFilterChange();
+            }
+            
+            showStatus('필터가 초기화되었습니다.', 'info');
+        }
+
+        // ===== 정렬 기능 =====
+        function sortResults() {
+            const sortBy = document.getElementById('sortResults').value;
+            const sorted = sortResultsData(searchResults, sortBy);
+            displayResults(sorted);
+        }
+
+        function sortResultsData(results, sortBy) {
+            const sorted = [...results];
+            
+            switch (sortBy) {
+                case 'date':
+                    return sorted.sort((a, b) => new Date(b.date) - new Date(a.date));
+                case 'reliability':
+                    return sorted.sort((a, b) => b.reliability - a.reliability);
+                case 'title':
+                    return sorted.sort((a, b) => a.title.localeCompare(b.title));
+                case 'citations':
+                    return sorted.sort((a, b) => b.citations - a.citations);
+                default: // relevance
+                    return sorted;
+            }
+        }
+
+        // ===== 검색어 입력 처리 =====
+        function handleSearchInputChange(e) {
+            const value = e.target.value;
+            
+            // 실시간 검색 제안 (선택적 구현)
+            if (value.length >= 2) {
+                // 검색 제안 로직
+            }
+        }
+
+        // ===== 상호작용 함수들 =====
+        function viewSource(id) {
+            const result = searchResults.find(r => r.id === id);
+            
+            // 실제 구현에서는 새 탭에서 URL 열기
+            window.open(result.url, '_blank');
+            
+            showStatus(`"${result.title}" 자료를 새 창에서 열었습니다.`, 'success');
+        }
+
+        function saveEvidence(id) {
+            const result = searchResults.find(r => r.id === id);
+            
+            // LocalStorage에 저장 (실제로는 서버에 저장)
+            let savedItems = JSON.parse(localStorage.getItem('savedEvidence') || '[]');
+            
+            if (!savedItems.find(item => item.id === id)) {
+                savedItems.push(result);
+                localStorage.setItem('savedEvidence', JSON.stringify(savedItems));
+                showStatus(`"${result.title}" 자료가 저장되었습니다.`, 'success');
+            } else {
+                showStatus('이미 저장된 자료입니다.', 'info');
+            }
+        }
+
+        function citationFormat(id) {
+            const result = searchResults.find(r => r.id === id);
+            const citation = `${result.author} (${result.date.split('-')[0]}). ${result.title}. ${result.source}. Retrieved from ${result.url}`;
+            
+            navigator.clipboard.writeText(citation).then(() => {
+                showStatus('인용 형식이 클립보드에 복사되었습니다.', 'success');
+            }).catch(() => {
+                // 클립보드 복사 실패시 모달 표시
+                alert(`인용 형식:\n\n${citation}`);
+            });
+        }
+
+        function analyzeCredibility(id) {
+            const result = searchResults.find(r => r.id === id);
+            
+            showLoading('신뢰도 분석 중...', 'AI가 자료의 신뢰도를 분석하고 있습니다');
+            
+            setTimeout(() => {
+                hideLoading();
+                
+                const analysis = `
+                    📊 신뢰도 분석 결과
+                    
+                    종합 신뢰도: ${result.reliability}%
+                    
+                    ✅ 신뢰도 요소:
+                    • 출처 신뢰성: ${result.institution} (공신력 있는 기관)
+                    • 인용 횟수: ${result.citations}회 (높은 학술적 인정)
+                    • 최신성: ${result.dateFormatted} (최신 자료)
+                    • 저자 전문성: 해당 분야 전문가
+                    
+                    💡 활용 권장사항:
+                    ${result.reliability >= 90 ? '매우 신뢰할 수 있는 자료로 핵심 근거로 활용 가능합니다.' : 
+                      result.reliability >= 80 ? '신뢰할 수 있는 자료로 보조 근거로 활용하세요.' : 
+                      '다른 자료와 함께 교차 검증하여 사용하세요.'}
+                `;
+                
+                alert(analysis);
+            }, 2000);
+        }
+
+        // ===== 내보내기 기능 =====
+        function showExportSection() {
+            const exportSection = document.getElementById('exportSection');
+            exportSection.classList.add('active');
+        }
+
+        function exportResults(format) {
+            if (searchResults.length === 0) {
+                showStatus('내보낼 검색 결과가 없습니다.', 'warning');
+                return;
+            }
+
+            showLoading('파일 생성 중...', `${format.toUpperCase()} 형식으로 내보내고 있습니다`);
+            
+            setTimeout(() => {
+                hideLoading();
+                
+                const content = generateExportContent();
+                
+                if (format === 'word') {
+                    exportToWord(content);
+                } else if (format === 'pdf') {
+                    exportToPDF();
+                } else if (format === 'excel') {
+                    exportToExcel();
+                }
+                
+                showStatus(`${format.toUpperCase()} 파일로 내보내기가 완료되었습니다.`, 'success');
+            }, 1500);
+        }
+
+        function exportToWord(content) {
+            const blob = new Blob([content], { type: 'text/html;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `토론_근거자료_${currentSearchTerm}_${getCurrentDate()}.doc`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function exportToPDF() {
+            window.print();
+        }
+
+        function printResults() {
+            if (searchResults.length === 0) {
+                showStatus('인쇄할 검색 결과가 없습니다.', 'warning');
+                return;
+            }
+
+            const printContent = generatePrintContent();
+            const printWindow = window.open('', '_blank');
+            
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>토론 근거자료 - ${currentSearchTerm}</title>
+                    <meta charset="utf-8">
+                    <style>
+                        body { 
+                            font-family: 'Malgun Gothic', '맑은 고딕', Arial, sans-serif; 
+                            line-height: 1.6; 
+                            margin: 20px;
+                            color: #333;
+                        }
+                        h1 { 
+                            color: #059669; 
+                            border-bottom: 3px solid #059669; 
+                            padding-bottom: 15px;
+                            margin-bottom: 30px;
+                        }
+                        .header-info {
+                            background: #f8fafc;
+                            padding: 20px;
+                            border-radius: 8px;
+                            margin-bottom: 30px;
+                            border-left: 4px solid #059669;
+                        }
+                        .result-item { 
+                            margin-bottom: 40px; 
+                            page-break-inside: avoid;
+                            border: 1px solid #e2e8f0;
+                            padding: 20px;
+                            border-radius: 8px;
+                        }
+                        .result-title { 
+                            font-size: 1.2rem; 
+                            font-weight: bold; 
+                            color: #059669; 
+                            margin-bottom: 10px; 
+                        }
+                        .result-meta { 
+                            color: #666; 
+                            font-size: 0.9rem; 
+                            margin-bottom: 15px;
+                            display: flex;
+                            gap: 20px;
+                            flex-wrap: wrap;
+                        }
+                        .result-summary { 
+                            margin-bottom: 15px;
+                            line-height: 1.7;
+                        }
+                        .result-tags { 
+                            font-size: 0.8rem; 
+                            color: #888;
+                        }
+                        .tag {
+                            background: #e0f2fe;
+                            color: #0369a1;
+                            padding: 2px 8px;
+                            border-radius: 4px;
+                            margin-right: 8px;
+                        }
+                        @media print { 
+                            body { margin: 0; font-size: 12pt; } 
+                            .no-print { display: none; }
+                            h1 { font-size: 18pt; }
+                            .result-title { font-size: 14pt; }
+                        }
+                    </style>
+                </head>
+                <body>
+                    ${printContent}
+                </body>
+                </html>
+            `);
+            
+            printWindow.document.close();
+            
+            printWindow.onload = function() {
+                printWindow.print();
+                printWindow.close();
+            };
+        }
+
+        function shareResults() {
+            if (navigator.share && searchResults.length > 0) {
+                navigator.share({
+                    title: `토론 근거자료: ${currentSearchTerm}`,
+                    text: `${currentSearchTerm}에 대한 ${searchResults.length}개의 신뢰할 수 있는 근거자료를 찾았습니다.`,
+                    url: window.location.href
+                });
+            } else {
+                // 대체 공유 방법
+                const shareUrl = window.location.href;
+                navigator.clipboard.writeText(shareUrl).then(() => {
+                    showStatus('페이지 링크가 클립보드에 복사되었습니다.', 'success');
+                });
+            }
+        }
+
+        function generateExportContent() {
+            const dateString = new Date().toLocaleString('ko-KR');
+            
+            return `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="utf-8">
+                    <title>토론 근거자료 - ${currentSearchTerm}</title>
+                    <style>
+                        body { font-family: 'Malgun Gothic', Arial, sans-serif; line-height: 1.6; margin: 20px; }
+                        h1 { color: #059669; border-bottom: 2px solid #059669; padding-bottom: 10px; }
+                        .header-info { background: #f8fafc; padding: 15px; border-radius: 5px; margin-bottom: 20px; }
+                        .result { margin-bottom: 30px; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+                        .result-title { font-size: 1.1rem; font-weight: bold; color: #059669; margin-bottom: 8px; }
+                        .result-meta { color: #666; font-size: 0.9rem; margin-bottom: 10px; }
+                        .result-tags { font-size: 0.8rem; color: #888; margin-top: 10px; }
+                    </style>
+                </head>
+                <body>
+                    <h1>📚 토론 근거자료 검색 결과</h1>
+                    
+                    <div class="header-info">
+                        <p><strong>검색 키워드:</strong> ${currentSearchTerm}</p>
+                        <p><strong>검색 일시:</strong> ${dateString}</p>
+                        <p><strong>총 검색 결과:</strong> ${searchResults.length}개</p>
+                        <p><strong>적용 필터:</strong> ${getFilterDescription()}</p>
+                    </div>
+                    
+                    ${searchResults.map((result, index) => `
+                        <div class="result">
+                            <div class="result-title">${index + 1}. ${result.title}</div>
+                            <div class="result-meta">
+                                출처: ${result.source} | 
+                                신뢰도: ${result.reliability}% | 
+                                발행일: ${result.dateFormatted} |
+                                인용: ${result.citations}회
+                            </div>
+                            <div class="result-summary">${result.summary}</div>
+                            <div class="result-tags">태그: ${result.tags.join(', ')}</div>
+                            <div style="margin-top: 8px; font-size: 0.9rem; color: #666;">
+                                URL: ${result.url}
+                            </div>
+                        </div>
+                    `).join('')}
+                    
+                    <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #ddd; color: #666; font-size: 0.9rem;">
+                        <p>이 자료는 토론 근거자료 검색 도구를 통해 생성되었습니다.</p>
+                        <p>생성 일시: ${dateString}</p>
+                    </div>
+                </body>
+                </html>
+            `;
+        }
+
+        function generatePrintContent() {
+            const dateString = new Date().toLocaleString('ko-KR');
+            
+            return `
+                <h1>📚 토론 근거자료 검색 결과</h1>
+                
+                <div class="header-info">
+                    <p><strong>검색 키워드:</strong> ${currentSearchTerm}</p>
+                    <p><strong>검색 일시:</strong> ${dateString}</p>
+                    <p><strong>총 검색 결과:</strong> ${searchResults.length}개</p>
+                </div>
+                
+                ${searchResults.map((result, index) => `
+                    <div class="result-item">
+                        <div class="result-title">${index + 1}. ${result.title}</div>
+                        <div class="result-meta">
+                            <span>출처: ${result.source}</span>
+                            <span>신뢰도: ${result.reliability}%</span>
+                            <span>발행일: ${result.dateFormatted}</span>
+                            <span>인용: ${result.citations}회</span>
+                        </div>
+                        <div class="result-summary">${result.summary}</div>
+                        <div class="result-tags">
+                            ${result.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                        </div>
+                    </div>
+                `).join('')}
+            `;
+        }
+
+        function getFilterDescription() {
+            const filters = [];
+            
+            if (currentFilters.sourceType !== 'all') {
+                filters.push(`유형: ${getSourceTypeLabel(currentFilters.sourceType)}`);
+            }
+            if (currentFilters.reliability !== 'all') {
+                filters.push(`신뢰도: ${getReliabilityLabel(currentFilters.reliability)}`);
+            }
+            if (currentFilters.perspective !== 'balanced') {
+                filters.push(`관점: ${getPerspectiveLabel(currentFilters.perspective)}`);
+            }
+            
+            return filters.length > 0 ? filters.join(', ') : '필터 없음';
+        }
+
+        function getSourceTypeLabel(value) {
+            const labels = {
+                'news': '뉴스 기사',
+                'academic': '학술 자료',
+                'government': '정부 발표',
+                'statistics': '통계 자료',
+                'research': '연구 보고서',
+                'international': '국제기구 자료'
+            };
+            return labels[value] || value;
+        }
+
+        function getReliabilityLabel(value) {
+            const labels = {
+                'high': '높음',
+                'verified': '검증된 자료만',
+                'premium': '프리미엄 소스'
+            };
+            return labels[value] || value;
+        }
+
+        function getPerspectiveLabel(value) {
+            const labels = {
+                'pro': '찬성 관점',
+                'con': '반대 관점',
+                'neutral': '중립적 분석'
+            };
+            return labels[value] || value;
+        }
+
+        // ===== 유틸리티 함수 =====
+        function getCurrentDate() {
+            return new Date().toISOString().split('T')[0];
+        }
+
+        function showStatus(message, type = 'info') {
+            const statusEl = document.getElementById('status-message');
+            statusEl.textContent = message;
+            statusEl.className = `status-message ${type} show`;
+            
+            setTimeout(() => {
+                statusEl.classList.remove('show');
+            }, type === 'success' ? 3000 : 4000);
+        }
+
+        function showLoading(title = 'AI 처리 중...', description = '잠시만 기다려 주세요') {
+            const overlay = document.getElementById('loading-overlay');
+            document.getElementById('loading-title').textContent = title;
+            document.getElementById('loading-description').textContent = description;
+            overlay.classList.add('active');
+        }
+
+        function hideLoading() {
+            document.getElementById('loading-overlay').classList.remove('active');
+        }
+
+        // ===== AI 진행률 표시 함수들 =====
+        let aiProgressModal = null;
+        let progressSteps = [];
+        let currentStep = 0;
+        let progressInterval = null;
+
+        function showAIProgress(type = 'evidence-search') {
+            hideLoading();
+            
+            if (type === 'evidence-search') {
+                progressSteps = [
+                    { text: '키워드 의미 분석 중...', icon: '🎯' },
+                    { text: '관련 자료 유형 확인 중...', icon: '📋' },
+                    { text: '신뢰성 있는 소스 검색 중...', icon: '🔍' },
+                    { text: '자료 신뢰도 검증 중...', icon: '✅' },
+                    { text: '검색 결과 최적화 중...', icon: '📊' }
+                ];
+            }
+            
+            currentStep = 0;
+            
+            const titles = {
+                'evidence-search': '근거자료를 검색 중입니다'
+            };
+            
+            const durations = {
+                'evidence-search': '10-15'
+            };
+            
+            const modalHTML = `
+                <div class="ai-progress-overlay" id="ai-progress-overlay">
+                    <div class="ai-progress-modal">
+                        <div class="ai-progress-icon">🤖</div>
+                        <div class="ai-progress-title">${titles[type] || '처리 중입니다'}</div>
+                        <div class="ai-progress-subtitle">약 ${durations[type] || '10-15'}초 소요됩니다</div>
+                        
+                        <div class="ai-progress-bar-container">
+                            <div class="ai-progress-bar" id="ai-progress-bar"></div>
+                        </div>
+                        
+                        <div class="ai-progress-steps">
+                            ${progressSteps.map((step, index) => `
+                                <div class="ai-progress-step" id="progress-step-${index}">
+                                    <span class="ai-progress-step-icon">${step.icon}</span>
+                                    <span>${step.text}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+            aiProgressModal = document.getElementById('ai-progress-overlay');
+            
+            startProgressAnimation();
+        }
+
+        function startProgressAnimation() {
+            const progressBar = document.getElementById('ai-progress-bar');
+            const totalSteps = progressSteps.length;
+            const stepDuration = 2000;
+            
+            progressInterval = setInterval(() => {
+                if (currentStep > 0) {
+                    const prevStep = document.getElementById(`progress-step-${currentStep - 1}`);
+                    if (prevStep) {
+                        prevStep.classList.remove('active');
+                        prevStep.classList.add('completed');
+                        prevStep.querySelector('.ai-progress-step-icon').textContent = '✅';
+                    }
+                }
+                
+                if (currentStep < totalSteps) {
+                    const currentStepEl = document.getElementById(`progress-step-${currentStep}`);
+                    if (currentStepEl) {
+                        currentStepEl.classList.add('active');
+                    }
+                    
+                    const progress = ((currentStep + 1) / totalSteps) * 100;
+                    if (progressBar) {
+                        progressBar.style.width = `${progress}%`;
+                    }
+                    
+                    currentStep++;
+                } else {
+                    clearInterval(progressInterval);
+                }
+            }, stepDuration);
+        }
+
+        function hideAIProgress() {
+            if (progressInterval) {
+                clearInterval(progressInterval);
+                progressInterval = null;
+            }
+            
+            if (aiProgressModal) {
+                aiProgressModal.style.animation = 'aiProgressSlideIn 0.3s ease-out reverse';
+                setTimeout(() => {
+                    if (aiProgressModal) {
+                        aiProgressModal.remove();
+                        aiProgressModal = null;
+                    }
+                }, 300);
+            }
+        }
+
+        // ===== 도움말 =====
+        function showHelp() {
+            const helpContent = `
+📚 토론 근거자료 검색 도구 사용법
+
+🔍 1. 기본 검색
+• 검색창에 토론 주제나 키워드 입력
+• "AI 분석" 버튼으로 키워드 최적화 추천
+• 구체적인 키워드일수록 정확한 결과
+
+📊 2. 고급 필터 활용
+• 자료 유형: 뉴스, 학술자료, 정부발표 등
+• 발행 기간: 최신 자료 또는 특정 기간 선택
+• 신뢰도 수준: 검증된 자료 우선 검색
+• 관점 분석: 찬성/반대/중립 관점별 분류
+
+🎯 3. AI 기능 활용
+• AI 키워드 분석으로 검색 전략 수립
+• 자료 신뢰도 AI 분석으로 품질 검증
+• 실시간 트렌드 분석으로 최신성 확보
+
+📋 4. 검색 결과 활용
+• 자료 보기: 원본 소스 즉시 확인
+• 저장하기: 개인 근거자료함에 보관
+• 인용형식: 올바른 학술 인용 형식 제공
+• 신뢰도 분석: AI 기반 자료 품질 평가
+
+📤 5. 내보내기 및 공유
+• 워드/PDF 형식으로 내보내기
+• 인쇄 최적화된 형태로 출력
+• 검색 결과 링크 공유
+
+💡 효과적인 검색 팁:
+• 여러 키워드 조합으로 다각도 검색
+• 신뢰도 높은 자료 우선 활용
+• 찬반 양측 관점의 자료 균형 수집
+• 최신 통계와 정부 발표자료 적극 활용
+• 국제 비교 자료로 시각 확장
+
+⚡ 고급 활용법:
+• AI 분석으로 검색 전략 최적화
+• 실시간 필터링으로 결과 정제
+• 차트를 통한 자료 분포 확인
+• 인용 횟수 기준 자료 신뢰성 판단
+            `;
+            
+            alert(helpContent);
+        }
+
+        // ===== 키보드 단축키 =====
+        document.addEventListener('keydown', function(e) {
+            // Ctrl+Enter 또는 Cmd+Enter로 검색 실행
+            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                searchEvidence();
+            }
+            
+            // ESC로 AI 분석 패널 닫기
+            if (e.key === 'Escape') {
+                hideAIAnalysis();
+            }
+            
+            // F1으로 도움말 열기
+            if (e.key === 'F1') {
+                e.preventDefault();
+                showHelp();
+            }
+        });
+
+        // ===== 성능 모니터링 =====
+        if (typeof PerformanceObserver !== 'undefined') {
+            const observer = new PerformanceObserver((list) => {
+                for (const entry of list.getEntries()) {
+                    if (entry.entryType === 'largest-contentful-paint') {
+                        console.log('LCP:', entry.startTime);
+                    }
+                }
+            });
+            
+            observer.observe({ entryTypes: ['largest-contentful-paint'] });
+        }
+
+        // ===== 접근성 개선 =====
+        document.addEventListener('DOMContentLoaded', function() {
+            // 포커스 관리
+            const firstFocusableElement = document.getElementById('searchInput');
+            if (firstFocusableElement) {
+                firstFocusableElement.focus();
+            }
+            
+            // ARIA 레이블 동적 업데이트
+            updateARIALabels();
+        });
+
+        function updateARIALabels() {
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.setAttribute('aria-describedby', 'search-help');
+            }
+        }
+    </script>
+</body>
+</html>
