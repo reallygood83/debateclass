@@ -1,45 +1,39 @@
-# 환경변수 파일
-.env
-.env.local
-.env.production
-.env.development
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
 
-# Node.js
-node_modules/
-npm-debug.log
-yarn-debug.log
-yarn-error.log
+# testing
+/coverage
 
-# Next.js
-.next/
-out/
-build/
+# next.js
+/.next/
+/out/
 
-# Vercel
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# local env files
+.env*.local
+
+# vercel
 .vercel
 
-# 로그 파일
-*.log
+# typescript
+*.tsbuildinfo
+next-env.d.ts
 
-# 임시 파일
-.DS_Store
-Thumbs.db
-
-# IDE 설정
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# 백업 파일
-*.bak
-*.backup
-
-# API 키가 포함된 설정 파일 (보안)
-config/secrets.js
-keys.json
-js/env-config.js
-
-# 캐시 디렉토리
-.cache/
-.parcel-cache/
+# Firebase
+firebase-debug.log
+ui-debug.log
+.firebase/
