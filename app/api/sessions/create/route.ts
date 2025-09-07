@@ -3,6 +3,8 @@ import { ref, push, set } from 'firebase/database'
 import { initializeApp, getApps } from 'firebase/app'
 import { getDatabase } from 'firebase/database'
 
+export const dynamic = 'force-dynamic'
+
 export async function POST(request: Request) {
   try {
     console.log('=== 세션 생성 API 시작 ===')

@@ -3,6 +3,8 @@ import { database } from '@/lib/firebase'
 import { ref, get, getDatabase, Database } from 'firebase/database'
 import { initializeApp } from 'firebase/app'
 
+export const dynamic = 'force-dynamic'
+
 export async function GET() {
   try {
     // Firebase 라이브러리가 정상적으로 초기화되었는지 확인

@@ -3,6 +3,8 @@ import { database } from '@/lib/firebase'
 import { ref, remove, get, set, getDatabase, Database } from 'firebase/database'
 import { initializeApp } from 'firebase/app'
 
+export const dynamic = 'force-dynamic'
+
 export async function DELETE(request: Request) {
   try {
     const { sessionId } = await request.json()

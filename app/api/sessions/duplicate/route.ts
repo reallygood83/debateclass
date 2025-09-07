@@ -4,6 +4,8 @@ import { ref, get, push, set, getDatabase, Database } from 'firebase/database'
 import { initializeApp } from 'firebase/app'
 import { generateSessionCode } from '@/lib/utils'
 
+export const dynamic = 'force-dynamic'
+
 export async function POST(request: Request) {
   try {
     const { sessionId } = await request.json()

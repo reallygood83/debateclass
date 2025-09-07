@@ -4,6 +4,8 @@ import { ref, update, getDatabase, Database } from 'firebase/database'
 import { clusterQuestions, recommendAgendas, extractKeyTerms } from '@/lib/gemini'
 import { initializeApp } from 'firebase/app'
 
+export const dynamic = 'force-dynamic'
+
 export async function POST(request: Request) {
   try {
     const data = await request.json()

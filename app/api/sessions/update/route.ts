@@ -3,6 +3,8 @@ import { database } from '@/lib/firebase'
 import { ref, update, getDatabase, Database } from 'firebase/database'
 import { initializeApp } from 'firebase/app'
 
+export const dynamic = 'force-dynamic'
+
 export async function PUT(request: Request) {
   try {
     const data = await request.json()

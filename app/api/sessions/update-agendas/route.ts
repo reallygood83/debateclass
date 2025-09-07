@@ -3,6 +3,8 @@ import { database } from '@/lib/firebase'
 import { ref, update, get, getDatabase, Database } from 'firebase/database'
 import { initializeApp } from 'firebase/app'
 
+export const dynamic = 'force-dynamic'
+
 export async function POST(request: Request) {
   try {
     const { sessionId, agendas } = await request.json()

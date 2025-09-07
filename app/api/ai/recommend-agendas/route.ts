@@ -3,6 +3,8 @@ import { database } from '@/lib/firebase'
 import { ref, push, set, get } from 'firebase/database'
 import { generateContent } from '@/lib/gemini'
 
+export const dynamic = 'force-dynamic'
+
 // 학생용 AI 논제 추천 API
 export async function POST(request: NextRequest) {
   try {
