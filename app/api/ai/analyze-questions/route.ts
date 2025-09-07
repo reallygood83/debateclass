@@ -5,6 +5,8 @@ import { clusterQuestions, recommendAgendas, extractKeyTerms } from '@/lib/gemin
 import { initializeApp } from 'firebase/app'
 
 export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
+export const revalidate = 0
 
 export async function POST(request: Request) {
   try {

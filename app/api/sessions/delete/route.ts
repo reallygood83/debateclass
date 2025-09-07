@@ -4,6 +4,8 @@ import { ref, remove, get, set, getDatabase, Database } from 'firebase/database'
 import { initializeApp } from 'firebase/app'
 
 export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
+export const revalidate = 0
 
 export async function DELETE(request: Request) {
   try {

@@ -5,6 +5,8 @@ import { initializeApp } from 'firebase/app'
 import { generateSessionCode } from '@/lib/utils'
 
 export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
+export const revalidate = 0
 
 export async function POST(request: Request) {
   try {

@@ -4,6 +4,8 @@ import { ref, push, set, get } from 'firebase/database'
 import { generateContent } from '@/lib/gemini'
 
 export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
+export const revalidate = 0
 
 // 학생용 AI 논제 추천 API
 export async function POST(request: NextRequest) {
