@@ -9,6 +9,11 @@ export const revalidate = 0
 
 export async function GET() {
   try {
+    // 빌드 타임 요청 차단
+    if (!process.env.VERCEL_ENV && process.env.NODE_ENV === 'production' && typeof window === 'undefined') {
+      return NextResponse.json({ sessions: [] })
+    }
+
     // Firebase 라이브러리가 정상적으로 초기화되었는지 확인
     let db: Database | null = database;
     
